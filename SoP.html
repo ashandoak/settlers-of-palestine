@@ -6,9 +6,11 @@
 	
 	<meta charset="UTF-8">
 	<title>The Settlers of Palestine</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+	<script src="jquery-3.0.0.js"></script>
+	<script type="text/javascript" src="data/SoPQuestionData.json"></script>
 	<link type="text/css" rel="stylesheet" href="rickshaw/rickshaw.min.css">
 	<script src="rickshaw/vendor/d3.v2.js"></script>
+	<script src="rickshaw/vendor/d3.v3.js"></script>
 	<script src="rickshaw/vendor/d3.layout.min.js"></script>
 	<script src="rickshaw/rickshaw.min.js"></script>
 
@@ -331,7 +333,8 @@
 				computeVote();
 				resolveScore();
 				//displayScore();
-				displayReply();				
+				displayReply();	
+				updateGraph();			
 			} else if (currentQData.state === "round complete") {
 				checkState();	
 			} else if (currentQData.state === "game complete") {
@@ -923,10 +926,15 @@
 			
 			score = {"era":0,"econ":0,"rep":0,"sol":0,"pop":0,"numQuestions":0};						
 			
-			var req = new XMLHttpRequest();
+			/*var req = new XMLHttpRequest();
 			req.open("GET", "data/SoPQuestionData.json", false);
 			req.send(null);
-			jsonData = JSON.parse(req.responseText);
+			jsonData = JSON.parse(req.responseText);*/
+			
+			/*$.getJSON("data/SoPQuestionData.json", {}, function(json) {
+ 				 jsonData = jQuery.parseJSON(json);
+			});*/
+			jsonData = SoPQuestionData;
 			
 			resetCanvas();
 			resetUI();					
@@ -941,49 +949,50 @@
 
 //*********************************************************		
 
-graph = new Rickshaw.Graph({
-	element: document.querySelector("#chart"),
-	width: 1100,
-	height: 250,
-	renderer: 'line',
-	series: [/*{
-		data: baseData,
-	},*/ {
-		data: scoreData.pop,
-		name: 'Population',
-		color: '#4682b4'
-	}, {
-		data: scoreData.econ,
-		name: 'Economy',
-		color: '#9cc1e0'
-	}, {
-		data: scoreData.rep,
-		name: 'Reputation',
-		color: '#ccf1e0'
-	}, {
-		data: scoreData.sol,
-		name: 'Solidarity',
-		color: '#1e0992'
-	}]
-});
+		graph = new Rickshaw.Graph({
+			element: document.querySelector("#chart"),
+			width: 1100,
+			height: 250,
+			renderer: 'line',
+			series: [/*{
+				data: baseData,
+			},*/ {
+				data: scoreData.pop,
+				name: 'Population',
+				color: '#4682b4'
+			}, {
+				data: scoreData.econ,
+				name: 'Economy',
+				color: '#9cc1e0'
+			}, {
+				data: scoreData.rep,
+				name: 'Reputation',
+				color: '#ccf1e0'
+			}, {
+				data: scoreData.sol,
+				name: 'Solidarity',
+				color: '#1e0992'
+			}]
+		});
+	
+		function updateGraph() {
+			graph.render();
+			var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
 
-graph.render();
-var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+			var hoverDetail = new Rickshaw.Graph.HoverDetail({
+			  graph: graph,
+			  formatter: function(series, x, y) {
+					//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+					var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+					//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+					var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
+					var content = swatch + data;
+					return content;
+				}
+			});
 
-var hoverDetail = new Rickshaw.Graph.HoverDetail({
-  graph: graph,
-  formatter: function(series, x, y) {
-		//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-		var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-		//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
-		var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
-		var content = swatch + data;
-		return content;
-	}
-});
-
-x_axis.render();
-				
+			x_axis.render();
+		}
 	</script>
 
 
