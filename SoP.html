@@ -154,6 +154,15 @@
 			bottom: 0;
 			right: 10px;
 		}		
+		#chart_container {
+			left: 50px;
+		}
+		
+		.rickshaw_graph .detail .x_label {display:none; }
+		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
+		.detail_swatch {float:right; width: 10px; height: 10px; margin: 2.5px 0 0 95px }
+		/*.rickshaw_graph .detail .date { color: #a0a0a0 }
+		.detail_data { float: left; display: inline; }*/
 	</style>
 
 </head>
@@ -485,8 +494,12 @@
 				scoreData.sol.push({x: baseData[questionCount].x, y: score.sol});*/
 				
 				scoreData.pop[questionCount].y = score.pop;
+				if (score.rep > 100) {score.rep = 100; }
+				if (score.rep < 0) { score.rep = 0; }
 				scoreData.rep[questionCount].y = score.rep;
 				scoreData.econ[questionCount].y = score.econ;
+				if (score.sol > 100) {score.sol = 100; }
+				if (score.sol < 0) { score.sol = 0; }
 				scoreData.sol[questionCount].y = score.sol;
 				
 				questionCount++;
@@ -930,7 +943,7 @@
 
 graph = new Rickshaw.Graph({
 	element: document.querySelector("#chart"),
-	width: 1500,
+	width: 1100,
 	height: 250,
 	renderer: 'line',
 	series: [/*{
@@ -958,7 +971,15 @@ graph.render();
 var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
 
 var hoverDetail = new Rickshaw.Graph.HoverDetail({
-  graph: graph
+  graph: graph,
+  formatter: function(series, x, y) {
+		//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+		var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+		//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+		var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
+		var content = swatch + data;
+		return content;
+	}
 });
 
 x_axis.render();
