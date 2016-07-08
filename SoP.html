@@ -6,175 +6,98 @@
 	
 	<meta charset="UTF-8">
 	<title>The Settlers of Palestine</title>
-	<script src="jquery-3.0.0.js"></script>
+	<script src="js/jquery-2.2.4.js"></script>
+	<script src="js/bootstrap.js"/></script>
 	<script type="text/javascript" src="data/SoPQuestionData.json"></script>
-	<link type="text/css" rel="stylesheet" href="rickshaw/rickshaw.min.css">
-	<script src="rickshaw/vendor/d3.v2.js"></script>
-	<script src="rickshaw/vendor/d3.v3.js"></script>
-	<script src="rickshaw/vendor/d3.layout.min.js"></script>
-	<script src="rickshaw/rickshaw.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="css/rickshaw.min.css">
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.css">
+	<script src="js/d3.v2.js"></script>
 
-	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/graph.css">
-	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/detail.css">
-	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/legend.css">
-	<link type="text/css" rel="stylesheet" href="rickshaw/examples/css/lines.css">
+	<script src="js/rickshaw.min.js"></script>
 
-	<script src="../vendor/d3.v3.js"></script>
 
-	<script src="../rickshaw.js"></script>
+
 	
 	<style>
-		#qa_container {
-			font: bold 15px helvetica;
-			position: absolute;
-			width: 50%;
-			left: 50%;
-			-webkit-transform: translateX(-50%);
-			transform: translateX(-50%);
+		
+		.jumbotron {
+			max-width: 1920px;
+			border-radius: 0 !important;
 		}
 		
-		.question_canvas{
-
-			border-radius: 25px;
-			background: #56819C;
-			padding: 20px; 
-
-			
-			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/			
-		}
-
-		#hook_canvas{			
-			position: relative;
-			font-size: 130%;
-			text-align: center;
-			top: 20px;
-			left: 20px;
-			width: 35%;
-			opacity: 0;
+		.main-group {
+			margin: 0 2% 0 2%;
 		}
 		
-		#text_canvas{
-			position: relative;
-			top: 50px;
-			left: 100px;
-			width: 65%;
-			opacity: 0;
-		}
-		
-		#answer_canvas{
-			position: relative;
-			top: 80px;
-			background: #A99687;
-			left: 150px;
-			width: 50%;
-			opacity: 0;
-		}
-
-		body { 
-			background-color: #505050;
-			margin: 0;
-			padding: 0;
-			max-width: 1500px;
-		}
-		
-		.head_wrapper {
-			height: 226px;
-			background-image: url("images/header_1500.jpg");
-			background-repeat: no-repeat;
-		}
-		
-		.body_wrapper {
-			height: 620px;
-			position: relative;
-		}
-		
-		#eras {
-			font: 20px helvetica;
-			position: absolute;
-			left: 10px;
-		}
-		
-		#era_title {
-			font: bold 30px helvetica;
-			text-align: center;
-		}
-		
-		.era {
+		.hook-text {
 			display: block;
-			line-height: 40px;
-			width: 40px;
-			border: thick black solid;
-			margin-bottom: 10px;
-			text-align: center;
-			background-color: #9C9C9C;
+			font-weight: bold;
+			margin-bottom: 1em;
 		}
 		
-		.era-marker {
-			background-color: yellow;
-		}
-					
-		.score_display {
-			display: block;
-			position: absolute; 
-			border: solid black thick;
-			text-align: center;
-			line-height: 70px;
-			line-width: 150px;
-			width: 180px;
-			height: 70px;
-			background-color: #9C9C9C;
-		}
-				
-		.score_display_title {
-			font: bold 15px helvetica;
-			position: absolute;
-			top: -22px;
-			left: -5px;
+		.main-text-panel {
+			min-height: 
 		}
 		
-		.score_display_data {
-			font: bold 30px helvetica;
-			vertical-align: middle;
+		#answer-canvas {
+		 margin-bottom: 2em;
 		}
 		
-		#population_display {
-			top: 30px;
-			right: 10px;
-		}
-		
-		#economy_display {
-			top: 150px;
-			right: 10px;
-		}
-		
-		#reputation_display {
-			bottom: 120px;
-			right: 10px;
-		}
+		.question-canvas{
 
-		#solidarity_display {
-			bottom: 0;
-			right: 10px;
-		}		
-		#chart_container {
-			left: 50px;
+			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/		
 		}
-		
 		.rickshaw_graph .detail .x_label {display:none; }
 		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
 		.detail_swatch {float:right; width: 10px; height: 10px; margin: 2.5px 0 0 95px }
 		/*.rickshaw_graph .detail .date { color: #a0a0a0 }
 		.detail_data { float: left; display: inline; }*/
+		
 	</style>
 
 </head>
 
 <body>
 	
-	<div class="head_wrapper"></div>
-	<div class="body_wrapper">
+	<div class="container-fluid">
+		<img src="images/header_1920.jpg" class="img-responsive" id="header-image">
+		<div class="jumbotron">		
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="text-left" id="era-title"></h1>					
+				</div>
+			</div>
+			<div class="row main-text-panel main-group">	
+				<div  class="col-lg-12 well well-sm">
+					<!--<h2 class="text-left question-canvas" id="hook-canvas"></h2>-->
+					<p class="text-left question-canvas" id="text-canvas"></p>
+				</div>
+			</div>
+			<div class="row main-group">
+				<div class="col-lg-12">
+					<h3 class="text-right question-canvas text-muted" id="answer-canvas"></h3>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-10 col-lg-offset-1">
+					<div id="chart_container">
+						<div id="chart"></div>
+						<div id="legend_container">
+							<div id="smoother" title="Smoothing"></div>
+							<div id="legend"></div>
+						</div>
+						<div id="slider"></div>
+						<div id="x_axis"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!--<div class="head_wrapper"></div>
+	<div class="body_wrapper">-->
 		<!-- Eras -->
-		<div id="eras" class="era_sidebar">
+	<!--	<div id="eras" class="era_sidebar">
 			<span class="title" id="era_title">Era</span>
 			<span class="era" id="era_1">
 				<span class="number">1</span>
@@ -208,15 +131,15 @@
 			</span>
 		</div>	
 
-		<!-- Era Marker -->
+		<!-- Era Marker 
 		<div id="era-marker" class="era-marker"></div>
-
-		<!-- Questions/answers display -->
-		<div id="qa_container">
-			<div id="hook_canvas" class="question_canvas"></div>
-			<div id="text_canvas" class="question_canvas"></div>
-			<div id="answer_canvas" class="question_canvas"></div>	
-		</div>
+-->
+		<!-- Questions/answers display-->
+<!--		<div id="qa_container">
+			<div id="hook-canvas" class="question-canvas"></div>
+			<div id="text-canvas" class="question-canvas"></div>
+			<div id="answer-canvas" class="question-canvas"></div>	
+		</div>-->
 
 		<!--Population display
 		<div class="score_display" id="population_display">
@@ -242,7 +165,7 @@
 			<span class="score_display_data score_display_text" id="reputation_value"></span>
 		</div>
 -->
-	</div>
+	<!--</div>
 <div id="chart_container">
 	<div id="chart"></div>
 	<div id="legend_container">
@@ -250,7 +173,7 @@
 		<div id="legend"></div>
 	</div>
 	<div id="slider"></div>
-</div>
+</div>-->
 
 	<script language="JavaScript">
 	
@@ -266,7 +189,7 @@
 		/*var baseData = [{x:-1893456000, y:NaN},{x:-1877817600, y:NaN},{x:-1577923200, y:NaN},{x:-1562198400, y:NaN},{x:-1262304000, y:NaN},{x:-1246665600, y:NaN},{x:-946771200, y:NaN},{x:-931046400, y:NaN},{x:-631152000, y:NaN},{x:-615513600, y:NaN},{x:-315619200, y:NaN},{x:-299894400, y:NaN},{x:0, y:NaN},{x:15638400, y:NaN},{x:315532800, y:NaN},{x:331257600, y:NaN},{x:631152000, y:NaN},{x:646790400, y:NaN},{x:946684800, y:NaN},{x:962409600, y:NaN},];*/
 		var baseData = [{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN},];
 		
-		var scoreData = {"pop":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "rep":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "econ":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "sol":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}]};
+		var scoreData = {"pop":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "rep":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "econ":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "sol":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}]};
 		var DISPLAY_ANIM_DELAY = 0;//1500;
 		var DISPLAY_ANIM_DELAY_OFFSET = 0;//1000;
 		
@@ -315,7 +238,7 @@
 		
 		/* Controls execution of the game. GameLoop is called at the end of each player interaction point.
 		 * All display control and game state checks are run through this function.
-		 */
+		 */	
 		function gameLoop() {			
 			
 			if (currentQData.state === "new era") {
@@ -334,7 +257,7 @@
 				resolveScore();
 				//displayScore();
 				displayReply();	
-				updateGraph();			
+				//updateGraph();			
 			} else if (currentQData.state === "round complete") {
 				checkState();	
 			} else if (currentQData.state === "game complete") {
@@ -357,41 +280,88 @@
 		 * then passed to resolveScore).
 		 */
 		function displayTitle() {
-						
-			var hDisplay = document.querySelector("#hook_canvas");
-			var tDisplay = document.querySelector("#text_canvas");
-			var aDisplay = document.querySelector("#answer_canvas");									
-							
-			var h = document.createTextNode(currentEraData.title.hook);
-			//Update this to randomly generate a score per metric, perhaps based off a seed value
-			var t = document.createTextNode(currentEraData.title.text + "\n\n" + "Econ: "+currentEraData.title.econ*setupMultipliers.econ + " Pop: " + currentEraData.title.pop*setupMultipliers.pop + " Rep: " + currentEraData.title.rep*setupMultipliers.rep + " Sol: " + currentEraData.title.sol*setupMultipliers.sol);
 			
-			hDisplay.appendChild(h);
+			//put this somewhere else...
+			document.querySelector("#era-title").textContent = "";
+			//**************************			
+			
+			var eDisplay = document.querySelector("#era-title");			
+			//var hDisplay = document.querySelector("#hook-canvas");
+			var tDisplay = document.querySelector("#text-canvas");
+			var aDisplay = document.querySelector("#answer-canvas");									
+							
+			var e = document.createTextNode(currentEraData.title.title);
+		/*	var he = document.createElement("SPAN");
+			he.setAttribute("class","hook-text");
+			var h = document.createTextNode(currentEraData.title.hook);
+			
+			
+			he.appendChild(h);*/
+			
+			//$(h).addClass("hook-text");
+			
+			/*h.style.display = "block";
+			h.style.fontWeight = "bold";*/
+			
+			//Update this to randomly generate a score per metric, perhaps based off a seed value
+			var t = document.createTextNode(currentEraData.title.text /*+ "\n\n" + "Econ: "+currentEraData.title.econ*setupMultipliers.econ + " Pop: " + currentEraData.title.pop*setupMultipliers.pop + " Rep: " + currentEraData.title.rep*setupMultipliers.rep + " Sol: " + currentEraData.title.sol*setupMultipliers.sol*/);
+			
+			eDisplay.appendChild(e);
+		//	tDisplay.appendChild(he);
+			//tDisplay.style.fontWeight = "bold";
 			tDisplay.appendChild(t);
 			
-			$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
-				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function () {
-					var para = createPElement("Continue...",0,0);
-				
-					para.addEventListener("click", function() {						
-						if (score.era === 0) {
-							currentQData.state = "setupQuestions";
-							setup();
-						} else {
-							currentQData.state = "question";
-							gameLoop();
-						}
-					})
-					aDisplay.appendChild(para);
+			$(eDisplay).animate({opacity: "1.0"},0,"linear",function() { return true; });
+		//	if (hDisplay.textContent !== "") {
+				//hDisplay.appendChild(h);
+				//$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
+				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
+					//$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function () {
+						var para = createPElement("Continue...",0,0);
+						//para.setAttribute("class", "col-lg-12 text-right");
+						
+						para.addEventListener("click", function() {						
+							if (score.era === 0) {
+								currentQData.state = "setupQuestions";
+								setup();
+							} else {
+								currentQData.state = "question";
+								gameLoop();
+							}
+						})
+						$("#answer-canvas").addClass("col-lg-12");
+						aDisplay.appendChild(para);
+						
+						
+						$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
+							para.style.pointerEvents = "auto";
+						});
+					//});
+				});				
+			/*} else {
+				$(tDisplay).animate({opacity: "1.0"}, 0, "linear", function() {
+					//$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function () {
+						var para = createPElement("Continue...",0,0);
 					
-					$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-						para.style.pointerEvents = "auto";
-					});
-				});
-			});				
-
+						para.addEventListener("click", function() {						
+							if (score.era === 0) {
+								currentQData.state = "setupQuestions";
+								setup();
+							} else {
+								currentQData.state = "question";
+								gameLoop();
+							}
+						})
+						aDisplay.appendChild(para);
+						
+						$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
+							para.style.pointerEvents = "auto";
+						});
+					//});
+				});	
+			}*/
 			
-			if (score.era > 0) { displayEra(); }
+			//if (score.era > 0) { displayEra(); }
 
 			return {'econ':currentEraData.title.econ,'pop':currentEraData.title.pop,'rep':currentEraData.title.rep,'sol':currentEraData.title.sol};
 		}
@@ -400,19 +370,23 @@
 		 */
 		function displayQuestion() {
 
-			var hDisplay = document.querySelector("#hook_canvas");
-			var tDisplay = document.querySelector("#text_canvas");
+			//var hDisplay = document.querySelector("#hook-canvas");
+			var tDisplay = document.querySelector("#text-canvas");
 			
 			if (currentQData.hook != "") {
+				var he = document.createElement("SPAN");
+				he.setAttribute("class","hook-text"); 
 				var h = document.createTextNode(currentQData.hook);
+				he.appendChild(h);
 				var t = document.createTextNode(currentQData.text);
 				
-				hDisplay.appendChild(h);
+				//hDisplay.appendChild(h);
+				tDisplay.appendChild(he);
 				tDisplay.appendChild(t);
 				
-				$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
+			//	$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
 					$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", displayAnswer);			
-				});	
+				//});	
 			} else {
 				var t = document.createTextNode(currentQData.text);
 
@@ -427,7 +401,7 @@
 		 * array. The trigger for each answer is also tracked. 
 		 */
 		function displayAnswer() {
-			var aDisplay = document.querySelector("#answer_canvas");
+			var aDisplay = document.querySelector("#answer-canvas");
 			
 			for(var i=0; i<currentQData.answers.length; i++) {
 
@@ -444,7 +418,8 @@
 							resolveSetupMultipliers();
 						} else {
 							currentQData.state = "reply"; 
-							gameLoop();
+							updateGraph();
+							//gameLoop();
 						}
 						
 					});
@@ -452,12 +427,11 @@
 				})(i)				
 			}
 			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				var answers = document.querySelectorAll("#answer_canvas p");
+				var answers = document.querySelectorAll("#answer-canvas h3");
 				for (i = 0; i < answers.length; i++) {
 					answers[i].style.pointerEvents = "auto";
 				}
 			});
-		
 		}
 		
 		/* Displays the response result of the chosen answer. This function will eventually need some logic
@@ -465,16 +439,17 @@
 		 */
 		function displayReply() {
 
-			var hDisplay = document.querySelector("#hook_canvas");
-			var tDisplay = document.querySelector("#text_canvas");
-			var aDisplay = document.querySelector("#answer_canvas");
+			var hDisplay = document.querySelector("#hook-canvas");
+			var tDisplay = document.querySelector("#text-canvas");
+			var aDisplay = document.querySelector("#answer-canvas");
 						
 			var r = document.createTextNode(currentQData.answers[currentQData.answerIndex].reply);
 			
 			tDisplay.appendChild(r);
 			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");			
 			
-			var para = createPElement("Continue...",0,0);
+			var para = createPElement("Continue...",0,0);	
+			//para.setAttribute("class", "col-lg-12 text-right");
 				
 			para.addEventListener("click", function() {						
 				if (currentQData.state === "setupQuestions" && score.numQuestions < 2) {
@@ -496,7 +471,7 @@
 				scoreData.econ.push({x: baseData[questionCount].x, y: score.econ});
 				scoreData.sol.push({x: baseData[questionCount].x, y: score.sol});*/
 				
-				scoreData.pop[questionCount].y = score.pop;
+				/*scoreData.pop[questionCount].y = score.pop;
 				if (score.rep > 100) {score.rep = 100; }
 				if (score.rep < 0) { score.rep = 0; }
 				scoreData.rep[questionCount].y = score.rep;
@@ -505,7 +480,7 @@
 				if (score.sol < 0) { score.sol = 0; }
 				scoreData.sol[questionCount].y = score.sol;
 				
-				questionCount++;
+				questionCount++;*/
 			}
 					
 		}
@@ -515,7 +490,7 @@
 		 */ 
 		function createPElement(s, mt, mb) {
 			
-			var para = document.createElement("p");
+			var para = document.createElement("h3");
 			var a = document.createTextNode(s);
 			
 			para.appendChild(a);
@@ -666,6 +641,24 @@
 			displayReply();
 		}
 		
+		function updateGraph() {
+			scoreData.pop[questionCount].y = score.pop;
+			if (score.rep > 100) {score.rep = 100; }
+			if (score.rep < 0) { score.rep = 0; }
+			scoreData.rep[questionCount].y = score.rep;
+			scoreData.econ[questionCount].y = score.econ;
+			if (score.sol > 100) {score.sol = 100; }
+			if (score.sol < 0) { score.sol = 0; }
+			scoreData.sol[questionCount].y = score.sol;
+			
+			questionCount++;
+			
+			graph.update();
+			
+			gameLoop();
+
+		}
+		
 		function resolveScore(data) {
 
 			if (data == undefined) {
@@ -681,7 +674,20 @@
 				score.pop += data.pop;				
 			}
 			
-			
+			/*if (currentQData.state !== "setup" && currentQData.state !== "setup_questions") { 
+				scoreData.pop[questionCount].y = score.pop;
+				if (score.rep > 100) {score.rep = 100; }
+				if (score.rep < 0) { score.rep = 0; }
+				scoreData.rep[questionCount].y = score.rep;
+				scoreData.econ[questionCount].y = score.econ;
+				if (score.sol > 100) {score.sol = 100; }
+				if (score.sol < 0) { score.sol = 0; }
+				scoreData.sol[questionCount].y = score.sol;
+				
+				questionCount++;
+				
+				graph.update();
+			}*/
 			/*			
 			if (score.rep < 40) { score.rep = 40; }
 			if (score.rep > 60) { score.rep = 60; }
@@ -778,9 +784,9 @@
 		
 		function displayGameOver() {
 			
-			var hDisplay = document.querySelector("#hook_canvas");
-			var tDisplay = document.querySelector("#text_canvas");
-			var aDisplay = document.querySelector("#answer_canvas");			
+			var hDisplay = document.querySelector("#hook-canvas");
+			var tDisplay = document.querySelector("#text-canvas");
+			var aDisplay = document.querySelector("#answer-canvas");			
 			
 			var h = document.createTextNode("GAME OVER");
 			var t = document.createTextNode("The population of your kibbutz has dropped to nothing. Unfortunately, the 'experiment' has been a failure.");					
@@ -803,9 +809,9 @@
 		
 		function displayEndScreen() {
 			
-			var hDisplay = document.querySelector("#hook_canvas");
-			var tDisplay = document.querySelector("#text_canvas");
-			var aDisplay = document.querySelector("#answer_canvas");			
+			var hDisplay = document.querySelector("#hook-canvas");
+			var tDisplay = document.querySelector("#text-canvas");
+			var aDisplay = document.querySelector("#answer-canvas");			
 			
 			var e = document.createTextNode("Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...");
 			
@@ -849,7 +855,7 @@
 
 		
 		function resetCanvas() {
-			var qDisplay = document.querySelectorAll(".question_canvas");
+			var qDisplay = document.querySelectorAll(".question-canvas");
 			for (i = 0; i < qDisplay.length; i++) {
 				qDisplay[i].textContent = "";
 				qDisplay[i].style.opacity = 0;
@@ -967,32 +973,65 @@
 			}, {
 				data: scoreData.rep,
 				name: 'Reputation',
-				color: '#ccf1e0'
+				color: '#22f1e0'
 			}, {
 				data: scoreData.sol,
 				name: 'Solidarity',
 				color: '#1e0992'
 			}]
 		});
+		
+		var format = function(n) {
+
+		var map = {
+			0: '1910',
+			1: '',
+			2: '1919',
+			3: '',
+			4: '1937',
+			5: '',
+			6: '1946',
+			7: '',
+			8: '1956',
+			9: '',
+			10: '1965',
+			11: '',
+			12: '1976',
+			13: '',
+			14: '1986',
+			15: '',
+			16: '1996',
+			17: '',
+			18: '2005',
+			19: '',
+			20: 'Present'
+		};
+
+	return map[n];
+}
+	var x_axis = new Rickshaw.Graph.Axis.X( { 
+		graph: graph,
+		orientation: 'bottom',
+		element: document.getElementById('x_axis'),
+		//pixelsPerTick: 200,
+		tickFormat: format				
+	} );
 	
-		function updateGraph() {
-			graph.render();
-			var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
-
-			var hoverDetail = new Rickshaw.Graph.HoverDetail({
-			  graph: graph,
-			  formatter: function(series, x, y) {
-					//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-					var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-					//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
-					var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
-					var content = swatch + data;
-					return content;
-				}
-			});
-
-			x_axis.render();
+	var hoverDetail = new Rickshaw.Graph.HoverDetail({
+	  graph: graph,
+	  formatter: function(series, x, y) {
+			//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+			var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+			//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+			var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
+			var content = swatch + data;
+			return content;
 		}
+	});
+			
+	x_axis.render();
+	
+
 	</script>
 
 
