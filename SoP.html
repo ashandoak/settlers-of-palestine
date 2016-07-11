@@ -8,7 +8,6 @@
 	<title>The Settlers of Palestine</title>
 	<script src="js/jquery-2.2.4.js"></script>
 	<script src="js/bootstrap.js"/></script>
-	<script type="text/javascript" src="data/SoPQuestionData.json"></script>
 	<link type="text/css" rel="stylesheet" href="css/rickshaw.min.css">
 	<link type="text/css" rel="stylesheet" href="css/bootstrap.css">
 	<script src="js/d3.v2.js"></script>
@@ -43,6 +42,18 @@
 		 margin-bottom: 2em;
 		}
 		
+		@media screen and (min-width: 320px) {
+			#chart {width: 320px; height: 72px;}
+		}
+		
+		@media screen and (min-width: 480px) {
+			#chart {width: 480px; height: 109px;}
+		}
+		
+		@media screen and (min-width: 1224px) {
+			#chart {width: 1100px; height: 250px;}		
+		}
+		
 		.question-canvas{
 
 			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/		
@@ -69,13 +80,12 @@
 			</div>
 			<div class="row main-text-panel main-group">	
 				<div  class="col-lg-12 well well-sm">
-					<!--<h2 class="text-left question-canvas" id="hook-canvas"></h2>-->
-					<p class="text-left question-canvas" id="text-canvas"></p>
+					<p class="text-justify question-canvas" id="text-canvas"></p>
 				</div>
 			</div>
 			<div class="row main-group">
 				<div class="col-lg-12">
-					<h3 class="text-right question-canvas text-muted" id="answer-canvas"></h3>
+					<p class="text-right question-canvas text-muted" id="answer-canvas"></p>
 				</div>
 			</div>
 			<div class="row">
@@ -93,87 +103,7 @@
 			</div>
 		</div>
 	</div>
-	
-	<!--<div class="head_wrapper"></div>
-	<div class="body_wrapper">-->
-		<!-- Eras -->
-	<!--	<div id="eras" class="era_sidebar">
-			<span class="title" id="era_title">Era</span>
-			<span class="era" id="era_1">
-				<span class="number">1</span>
-			</span>
-			<span class="era" id="era_2">
-				<span class="number">2</span>
-			</span>
-			<span class="era" id="era_3">
-				<span class="number">3</span>
-			</span>
-			<span class="era" id="era_4">
-				<span class="number">4</span>
-			</span>
-			<span class="era" id="era_5">
-				<span class="number">5</span>
-			</span>
-			<span class="era" id="era_6">
-				<span class="number">6</span>
-			</span>
-			<span class="era" id="era_7">
-				<span class="number">7</span>
-			</span>
-			<span class="era" id="era_8">
-				<span class="number">8</span>
-			</span>
-			<span class="era" id="era_9">
-				<span class="number">9</span>
-			</span>
-			<span class="era" id="era_10">
-				<span class="number">10</span>
-			</span>
-		</div>	
 
-		<!-- Era Marker 
-		<div id="era-marker" class="era-marker"></div>
--->
-		<!-- Questions/answers display-->
-<!--		<div id="qa_container">
-			<div id="hook-canvas" class="question-canvas"></div>
-			<div id="text-canvas" class="question-canvas"></div>
-			<div id="answer-canvas" class="question-canvas"></div>	
-		</div>-->
-
-		<!--Population display
-		<div class="score_display" id="population_display">
-			<span class="score_display_title">Population</span>
-			<span class="score_display_data score_display_numeric" id="population_value"></span>
-		</div>
-		
-		<!--Economy display
-		<div class="score_display" id="economy_display">
-			<span class="score_display_title">Economy</span>
-			<span class="score_display_data score_display_numeric" id="economy_value"></span>
-		</div>
-		
-		<!--Solidarity display
-		<div class="score_display" id="solidarity_display">
-			<span class="score_display_title">Solidarity</span>
-			<span class="score_display_data score_display_text" id="solidarity_value"></span>
-		</div>
-		
-		<!--Reputation display
-		<div class="score_display" id="reputation_display">
-			<span class="score_display_title">Reputation</span>
-			<span class="score_display_data score_display_text" id="reputation_value"></span>
-		</div>
--->
-	<!--</div>
-<div id="chart_container">
-	<div id="chart"></div>
-	<div id="legend_container">
-		<div id="smoother" title="Smoothing"></div>
-		<div id="legend"></div>
-	</div>
-	<div id="slider"></div>
-</div>-->
 
 	<script language="JavaScript">
 	
@@ -186,10 +116,9 @@
 		var currentEraData = {};
 		var setupMultipliers = {"econ":1,"pop":1,"rep":1,"sol":1};
 		var jsonData;
-		/*var baseData = [{x:-1893456000, y:NaN},{x:-1877817600, y:NaN},{x:-1577923200, y:NaN},{x:-1562198400, y:NaN},{x:-1262304000, y:NaN},{x:-1246665600, y:NaN},{x:-946771200, y:NaN},{x:-931046400, y:NaN},{x:-631152000, y:NaN},{x:-615513600, y:NaN},{x:-315619200, y:NaN},{x:-299894400, y:NaN},{x:0, y:NaN},{x:15638400, y:NaN},{x:315532800, y:NaN},{x:331257600, y:NaN},{x:631152000, y:NaN},{x:646790400, y:NaN},{x:946684800, y:NaN},{x:962409600, y:NaN},];*/
-		var baseData = [{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN},];
 		
-		var scoreData = {"pop":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "rep":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "econ":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "sol":[{x:0, y:NaN},{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}]};
+		var scoreData = {};
+		
 		var DISPLAY_ANIM_DELAY = 0;//1500;
 		var DISPLAY_ANIM_DELAY_OFFSET = 0;//1000;
 		
@@ -245,8 +174,7 @@
 				resetCanvas();
 				currentEraData = getEraData();
 				currentEraData.bossBattle = getBossBattle();
-				resolveScore(displayTitle());
-				//displayScore();					
+				resolveScore(displayTitle());					
 			} else if (currentQData.state === "question") {
 				resetCanvas();
 				currentQData = getRoundData();
@@ -255,9 +183,7 @@
 				resetCanvas();
 				computeVote();
 				resolveScore();
-				//displayScore();
-				displayReply();	
-				//updateGraph();			
+				displayReply();				
 			} else if (currentQData.state === "round complete") {
 				checkState();	
 			} else if (currentQData.state === "game complete") {
@@ -286,82 +212,43 @@
 			//**************************			
 			
 			var eDisplay = document.querySelector("#era-title");			
-			//var hDisplay = document.querySelector("#hook-canvas");
 			var tDisplay = document.querySelector("#text-canvas");
 			var aDisplay = document.querySelector("#answer-canvas");									
 							
 			var e = document.createTextNode(currentEraData.title.title);
-		/*	var he = document.createElement("SPAN");
-			he.setAttribute("class","hook-text");
-			var h = document.createTextNode(currentEraData.title.hook);
-			
-			
-			he.appendChild(h);*/
-			
-			//$(h).addClass("hook-text");
-			
-			/*h.style.display = "block";
-			h.style.fontWeight = "bold";*/
 			
 			//Update this to randomly generate a score per metric, perhaps based off a seed value
-			var t = document.createTextNode(currentEraData.title.text /*+ "\n\n" + "Econ: "+currentEraData.title.econ*setupMultipliers.econ + " Pop: " + currentEraData.title.pop*setupMultipliers.pop + " Rep: " + currentEraData.title.rep*setupMultipliers.rep + " Sol: " + currentEraData.title.sol*setupMultipliers.sol*/);
+			var t = document.createTextNode(currentEraData.title.text);
 			
 			eDisplay.appendChild(e);
-		//	tDisplay.appendChild(he);
-			//tDisplay.style.fontWeight = "bold";
 			tDisplay.appendChild(t);
 			
 			$(eDisplay).animate({opacity: "1.0"},0,"linear",function() { return true; });
-		//	if (hDisplay.textContent !== "") {
-				//hDisplay.appendChild(h);
-				//$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
-				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
-					//$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function () {
-						var para = createPElement("Continue...",0,0);
-						//para.setAttribute("class", "col-lg-12 text-right");
-						
-						para.addEventListener("click", function() {						
-							if (score.era === 0) {
-								currentQData.state = "setupQuestions";
-								setup();
-							} else {
-								currentQData.state = "question";
-								gameLoop();
-							}
-						})
-						$("#answer-canvas").addClass("col-lg-12");
-						aDisplay.appendChild(para);
-						
-						
-						$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-							para.style.pointerEvents = "auto";
-						});
-					//});
-				});				
-			/*} else {
-				$(tDisplay).animate({opacity: "1.0"}, 0, "linear", function() {
-					//$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function () {
-						var para = createPElement("Continue...",0,0);
-					
-						para.addEventListener("click", function() {						
-							if (score.era === 0) {
-								currentQData.state = "setupQuestions";
-								setup();
-							} else {
-								currentQData.state = "question";
-								gameLoop();
-							}
-						})
-						aDisplay.appendChild(para);
-						
-						$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-							para.style.pointerEvents = "auto";
-						});
-					//});
-				});	
-			}*/
-			
-			//if (score.era > 0) { displayEra(); }
+
+			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
+				var para = createPElement("Continue...",0,0);
+				
+				//scoreData["pop"].push({x:5,y:20});
+				//para.setAttribute("class", "col-lg-12 text-right");
+				
+				para.addEventListener("click", function() {						
+					if (score.era === 0) {
+						currentQData.state = "setupQuestions";
+						setup();
+					} else {
+						currentQData.state = "question";
+						gameLoop();
+					}
+				})
+				$("#answer-canvas").addClass("col-lg-12");
+				aDisplay.appendChild(para);
+				
+				
+				$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
+					para.style.pointerEvents = "auto";
+				});
+
+			});				
 
 			return {'econ':currentEraData.title.econ,'pop':currentEraData.title.pop,'rep':currentEraData.title.rep,'sol':currentEraData.title.sol};
 		}
@@ -370,7 +257,6 @@
 		 */
 		function displayQuestion() {
 
-			//var hDisplay = document.querySelector("#hook-canvas");
 			var tDisplay = document.querySelector("#text-canvas");
 			
 			if (currentQData.hook != "") {
@@ -384,9 +270,8 @@
 				tDisplay.appendChild(he);
 				tDisplay.appendChild(t);
 				
-			//	$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
-					$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", displayAnswer);			
-				//});	
+				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", displayAnswer);			
+
 			} else {
 				var t = document.createTextNode(currentQData.text);
 
@@ -411,7 +296,6 @@
 					para.setAttribute("data-answerIndex",i);
 					para.setAttribute("trigger", currentQData.answers[i].trig);					
 					para.addEventListener("click", function() {
-						score.numQuestions++;
 						currentQData.answerIndex = para.getAttribute("data-answerIndex");
 						currentQData.trigger = para.getAttribute("trigger");
 						if (currentQData.state === "setupQuestions") { 
@@ -419,15 +303,14 @@
 						} else {
 							currentQData.state = "reply"; 
 							updateGraph();
-							//gameLoop();
 						}
-						
+						score.numQuestions++;
 					});
 					aDisplay.appendChild(para);
 				})(i)				
 			}
 			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				var answers = document.querySelectorAll("#answer-canvas h3");
+				var answers = document.querySelectorAll("#answer-canvas p");
 				for (i = 0; i < answers.length; i++) {
 					answers[i].style.pointerEvents = "auto";
 				}
@@ -439,7 +322,6 @@
 		 */
 		function displayReply() {
 
-			var hDisplay = document.querySelector("#hook-canvas");
 			var tDisplay = document.querySelector("#text-canvas");
 			var aDisplay = document.querySelector("#answer-canvas");
 						
@@ -449,8 +331,7 @@
 			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");			
 			
 			var para = createPElement("Continue...",0,0);	
-			//para.setAttribute("class", "col-lg-12 text-right");
-				
+			
 			para.addEventListener("click", function() {						
 				if (currentQData.state === "setupQuestions" && score.numQuestions < 2) {
 					resolveScore();
@@ -463,26 +344,7 @@
 			aDisplay.appendChild(para);	
 			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
 				para.style.pointerEvents = "auto";
-			});	
-			
-			if (currentQData.type) {
-				/*scoreData.pop.push({x: baseData[questionCount].x, y: score.pop});
-				scoreData.rep.push({x: baseData[questionCount].x, y: score.rep});
-				scoreData.econ.push({x: baseData[questionCount].x, y: score.econ});
-				scoreData.sol.push({x: baseData[questionCount].x, y: score.sol});*/
-				
-				/*scoreData.pop[questionCount].y = score.pop;
-				if (score.rep > 100) {score.rep = 100; }
-				if (score.rep < 0) { score.rep = 0; }
-				scoreData.rep[questionCount].y = score.rep;
-				scoreData.econ[questionCount].y = score.econ;
-				if (score.sol > 100) {score.sol = 100; }
-				if (score.sol < 0) { score.sol = 0; }
-				scoreData.sol[questionCount].y = score.sol;
-				
-				questionCount++;*/
-			}
-					
+			});						
 		}
 		
 		/* A helper function that returns a <p> element which is used for attaching text content to divs 
@@ -490,7 +352,7 @@
 		 */ 
 		function createPElement(s, mt, mb) {
 			
-			var para = document.createElement("h3");
+			var para = document.createElement("p");
 			var a = document.createTextNode(s);
 			
 			para.appendChild(a);
@@ -642,16 +504,15 @@
 		}
 		
 		function updateGraph() {
-			scoreData.pop[questionCount].y = score.pop;
+			scoreData.pop[2*(score.era-1)+ score.numQuestions].y = score.pop;
 			if (score.rep > 100) {score.rep = 100; }
 			if (score.rep < 0) { score.rep = 0; }
-			scoreData.rep[questionCount].y = score.rep;
-			scoreData.econ[questionCount].y = score.econ;
+			scoreData.rep[2*(score.era-1) + score.numQuestions].y = score.rep;
+			scoreData.econ[2*(score.era-1) + score.numQuestions].y = score.econ;
 			if (score.sol > 100) {score.sol = 100; }
 			if (score.sol < 0) { score.sol = 0; }
-			scoreData.sol[questionCount].y = score.sol;
-			
-			questionCount++;
+			scoreData.sol[2*(score.era-1) + score.numQuestions].y = score.sol;
+
 			
 			graph.update();
 			
@@ -673,106 +534,8 @@
 				score.sol += data.sol;
 				score.pop += data.pop;				
 			}
-			
-			/*if (currentQData.state !== "setup" && currentQData.state !== "setup_questions") { 
-				scoreData.pop[questionCount].y = score.pop;
-				if (score.rep > 100) {score.rep = 100; }
-				if (score.rep < 0) { score.rep = 0; }
-				scoreData.rep[questionCount].y = score.rep;
-				scoreData.econ[questionCount].y = score.econ;
-				if (score.sol > 100) {score.sol = 100; }
-				if (score.sol < 0) { score.sol = 0; }
-				scoreData.sol[questionCount].y = score.sol;
-				
-				questionCount++;
-				
-				graph.update();
-			}*/
-			/*			
-			if (score.rep < 40) { score.rep = 40; }
-			if (score.rep > 60) { score.rep = 60; }
-						
-			if (score.sol < 40) { score.sol = 40; }
-			if (score.sol > 60) { score.sol = 60; }
-			
-			var repMultiplier = score.rep/50;
-			
-			if (data == undefined) {
-				score.pop += Math.round(repMultiplier * currentQData.answers[currentQData.answerIndex].pop);
-			} else {
-				score.pop += Math.round(repMultiplier * data.pop);
-			}
-			*/
-		}
-		
-		/*function displayScore() {
 
-			var pDisplay = document.querySelector("#population_value");
-			pDisplay.textContent = score.pop;
-			
-			var eDisplay = document.querySelector("#economy_value");
-			eDisplay.textContent = score.econ;
-			
-			var repValueDisplay = document.querySelector("#reputation_value");
-			var repContainerDisplay = document.querySelector("#reputation_display");
-			var repValue = Math.round10(score.rep*2,1)/2;
-			
-			switch (repValue) {
-				case 40:
-					repValueDisplay.textContent = "Infamous";
-					repContainerDisplay.style.backgroundColor = "#9C7375";
-					break;
-				case 45:
-					repValueDisplay.textContent = "Notorious";
-					repContainerDisplay.style.backgroundColor = "#9C8D8D";
-					break;
-				case 50:
-					repValueDisplay.textContent = "Neutral";
-					repContainerDisplay.style.backgroundColor = "#9C9C9C";
-					break;
-				case 55:
-					repValueDisplay.textContent = "Known";
-					repContainerDisplay.style.backgroundColor = "#7D9C86";
-					break;
-				case 60:
-					repValueDisplay.textContent = "Famous";
-					repContainerDisplay.style.backgroundColor = "#659C73";
-					break;
-				default:
-					repValueDisplay.textContent = "Neutral";
-					repContainerDisplay.style.backgroundColor = "#9C9C9C";
-			}
-			
-			var solValueDisplay = document.querySelector("#solidarity_value");
-			var solContainerDisplay = document.querySelector("#solidarity_display");
-			var solValue = Math.round10(score.sol*2,1)/2;
-			
-			switch (solValue) {
-				case 40:
-					solValueDisplay.textContent = "Fragmented";
-					solContainerDisplay.style.backgroundColor = "#9C7375";
-					break;
-				case 45:
-					solValueDisplay.textContent = "Uncertain";
-					solContainerDisplay.style.backgroundColor = "#9C8D8D";
-					break;
-				case 50:
-					solValueDisplay.textContent = "Neutral";
-					solContainerDisplay.style.backgroundColor = "#9C9C9C";
-					break;
-				case 55:
-					solValueDisplay.textContent = "Established";
-					solContainerDisplay.style.backgroundColor = "#7D9C86";
-					break;
-				case 60:
-					solValueDisplay.textContent = "Unified";
-					solContainerDisplay.style.backgroundColor = "#659C73";
-					break;
-				default:
-					solValueDisplay.textContent = "Neutral";
-					solContainerDisplay.style.backgroundColor = "#9C9C9C";
-			}
-		}*/
+		}
 		
 		function failConditionReached() {
 			if (score.pop <= 1 || score.econ <=0 || score.sol <= 0) {
@@ -783,18 +546,14 @@
 		}
 		
 		function displayGameOver() {
-			
-			var hDisplay = document.querySelector("#hook-canvas");
+
 			var tDisplay = document.querySelector("#text-canvas");
 			var aDisplay = document.querySelector("#answer-canvas");			
 			
-			var h = document.createTextNode("GAME OVER");
 			var t = document.createTextNode("The population of your kibbutz has dropped to nothing. Unfortunately, the 'experiment' has been a failure.");					
-			
-			hDisplay.appendChild(h)
+
 			tDisplay.appendChild(t)
-						
-			$(hDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear");	
+
 			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");	
 			
 			var para = createPElement("Click to replay...",0,0);
@@ -808,8 +567,7 @@
 		}
 		
 		function displayEndScreen() {
-			
-			var hDisplay = document.querySelector("#hook-canvas");
+
 			var tDisplay = document.querySelector("#text-canvas");
 			var aDisplay = document.querySelector("#answer-canvas");			
 			
@@ -828,31 +586,6 @@
 			});	
 
 		}
-		
-		function resetUI() {
-			var eraDisplay = document.querySelectorAll(".era");
-			var scoreDisplay = document.querySelectorAll(".score_display");
-			var popDisplay = document.querySelector("#population_value");
-			var econDisplay = document.querySelector("#economy_value");
-			var repDisplay = document.querySelector("#reputation_value");
-			var solDisplay = document.querySelector("#solidarity_value");
-			
-			for (i = 0; i < eraDisplay.length; i++) {
-				eraDisplay[i].style.backgroundColor = "#9C9C9C";
-			}
-			
-			for (i = 0; i < scoreDisplay.length; i++) {
-				scoreDisplay[i].style.backgroundColor = "#9C9C9C";
-			}
-			
-			/*popDisplay.textContent = "0";
-			econDisplay.textContent = "0"
-			repDisplay.textContent = "Neutral"
-			solDisplay.textContent = "Neutral"*/
-			
-		}
-		
-
 		
 		function resetCanvas() {
 			var qDisplay = document.querySelectorAll(".question-canvas");
@@ -877,161 +610,129 @@
 			} else {
 				displayEndScreen();
 			}			
+		}		
+		
+		function loadScript(url, callback) {
+			var head = document.getElementsByTagName('head')[0];
+			var script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.src = url;
+
+			script.onreadystatechange = callback;
+			script.onload = callback;
+			
+			head.appendChild(script);
+		}
+
+		function gameSetup() {
+			jsonData = SoPQuestionData;
+			currentEraData = getEraData();
+			currentQData.state = "setup";
+			setup();
+			console.log("done");
+		}
+
+		function clearGraph() {
+		  $('#chart_container').html(
+			'<div id="chart"></div><div id="legend_container"></div><div id="slider"></div><div id="x_axis"></div>'
+		  );	
+		  
+		  scoreData = {"pop":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "rep":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "econ":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "sol":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}]};
+		}
+	
+		function drawGraph() {
+			
+			var w = document.querySelector("#chart").width;
+			var h = document.querySelector("#chart").height;
+			
+			graph = new Rickshaw.Graph({
+				element: document.querySelector("#chart"),
+				width: w,
+				height: h,
+				renderer: 'lineplot',
+				series: [
+				{
+					data: scoreData.pop,
+					name: 'Population',
+					color: '#4682b4'
+				}, {
+					data: scoreData.econ,
+					name: 'Economy',
+					color: '#9cc1e0'
+				}, {
+					data: scoreData.rep,
+					name: 'Reputation',
+					color: '#22f1e0'
+				}, {
+					data: scoreData.sol,
+					name: 'Solidarity',
+					color: '#1e0992'
+				}]
+			});
+			
+			var format = function(n) {
+
+				var map = {
+					0: '1910',
+					1: '',
+					2: '1919',
+					3: '',
+					4: '1937',
+					5: '',
+					6: '1946',
+					7: '',
+					8: '1956',
+					9: '',
+					10: '1965',
+					11: '',
+					12: '1976',
+					13: '',
+					14: '1986',
+					15: '',
+					16: '1996',
+					17: '',
+					18: '2005',
+					19: '',
+					20: 'Present'
+				};
+
+				return map[n];
+			}
+			
+			var x_axis = new Rickshaw.Graph.Axis.X( { 
+				graph: graph,
+				orientation: 'bottom',
+				element: document.getElementById('x_axis'),
+				tickFormat: format				
+			} );
+			
+			var hoverDetail = new Rickshaw.Graph.HoverDetail({
+				graph: graph,
+				formatter: function(series, x, y) {
+					var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+					var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
+					var content = swatch + data;
+					return content;
+				}
+			});
+					
+			x_axis.render();
+	
 		}
 		
-		//Found at https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Math/round
-		/*(function() {
-			/**
-			* Decimal adjustment of a number.
-			*
-			* @param {String}  type  The type of adjustment.
-			* @param {Number}  value The number.
-			* @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
-			* @returns {Number} The adjusted value.
-			
-			function decimalAdjust(type, value, exp) {
-				// If the exp is undefined or zero...
-				if (typeof exp === 'undefined' || +exp === 0) {
-				  return Math[type](value);
-				}
-				value = +value;
-				exp = +exp;
-				// If the value is not a number or the exp is not an integer...
-				if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-				  return NaN;
-				}
-				// Shift
-				value = value.toString().split('e');
-				value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
-				// Shift back
-				value = value.toString().split('e');
-				return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
-			}
-
-			// Decimal round
-			if (!Math.round10) {
-				Math.round10 = function(value, exp) {
-					return decimalAdjust('round', value, exp);
-				};
-			}
-			// Decimal floor
-			if (!Math.floor10) {
-				Math.floor10 = function(value, exp) {
-					return decimalAdjust('floor', value, exp);
-				};
-			}
-			// Decimal ceil
-			if (!Math.ceil10) {
-				Math.ceil10 = function(value, exp) {
-					return decimalAdjust('ceil', value, exp);
-				};
-			}
-		})();
-		*/
 		function startGame() {
 			
 			score = {"era":0,"econ":0,"rep":0,"sol":0,"pop":0,"numQuestions":0};						
 			
-			/*var req = new XMLHttpRequest();
-			req.open("GET", "data/SoPQuestionData.json", false);
-			req.send(null);
-			jsonData = JSON.parse(req.responseText);*/
-			
-			/*$.getJSON("data/SoPQuestionData.json", {}, function(json) {
- 				 jsonData = jQuery.parseJSON(json);
-			});*/
-			jsonData = SoPQuestionData;
-			
+			clearGraph();
 			resetCanvas();
-			resetUI();					
-			
-			currentEraData = getEraData();
-			currentQData.state = "setup";
-			setup();
+			drawGraph();
 
+			loadScript("data/SoPQuestionData.json", gameSetup);						
 		}
 		
-		startGame();		
-
-//*********************************************************		
-
-		graph = new Rickshaw.Graph({
-			element: document.querySelector("#chart"),
-			width: 1100,
-			height: 250,
-			renderer: 'line',
-			series: [/*{
-				data: baseData,
-			},*/ {
-				data: scoreData.pop,
-				name: 'Population',
-				color: '#4682b4'
-			}, {
-				data: scoreData.econ,
-				name: 'Economy',
-				color: '#9cc1e0'
-			}, {
-				data: scoreData.rep,
-				name: 'Reputation',
-				color: '#22f1e0'
-			}, {
-				data: scoreData.sol,
-				name: 'Solidarity',
-				color: '#1e0992'
-			}]
-		});
+		startGame();			
 		
-		var format = function(n) {
-
-		var map = {
-			0: '1910',
-			1: '',
-			2: '1919',
-			3: '',
-			4: '1937',
-			5: '',
-			6: '1946',
-			7: '',
-			8: '1956',
-			9: '',
-			10: '1965',
-			11: '',
-			12: '1976',
-			13: '',
-			14: '1986',
-			15: '',
-			16: '1996',
-			17: '',
-			18: '2005',
-			19: '',
-			20: 'Present'
-		};
-
-	return map[n];
-}
-	var x_axis = new Rickshaw.Graph.Axis.X( { 
-		graph: graph,
-		orientation: 'bottom',
-		element: document.getElementById('x_axis'),
-		//pixelsPerTick: 200,
-		tickFormat: format				
-	} );
-	
-	var hoverDetail = new Rickshaw.Graph.HoverDetail({
-	  graph: graph,
-	  formatter: function(series, x, y) {
-			//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-			var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-			//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
-			var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
-			var content = swatch + data;
-			return content;
-		}
-	});
-			
-	x_axis.render();
-	
-
 	</script>
 
 
