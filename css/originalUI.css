@@ -1,0 +1,134 @@
+#qa_container {
+	font: bold 15px helvetica;
+	position: absolute;
+	width: 50%;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	transform: translateX(-50%);
+}
+
+.question_canvas{
+
+	border-radius: 25px;
+	background: #56819C;
+	padding: 20px; 
+	
+	white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/			
+}
+
+#hook_canvas{			
+	position: relative;
+	font-size: 130%;
+	text-align: center;
+	top: 20px;
+	left: 20px;
+	width: 35%;
+	opacity: 0;
+}
+
+#text_canvas{
+	position: relative;
+	top: 50px;
+	left: 100px;
+	width: 65%;
+	opacity: 0;
+}
+
+#answer_canvas{
+	position: relative;
+	top: 80px;
+	background: #A99687;
+	left: 150px;
+	width: 50%;
+	opacity: 0;
+}
+
+body { 
+	background-color: #505050;
+	margin: 0;
+	padding: 0;
+	max-width: 1500px;
+}
+
+.head_wrapper {
+	height: 226px;
+	background-image: url("../images/header_1500.jpg");
+	background-repeat: no-repeat;
+}
+
+.body_wrapper {
+	height: 620px;
+	position: relative;
+}
+
+#eras {
+	font: 20px helvetica;
+	position: absolute;
+	left: 10px;
+}
+
+#era_title {
+	font: bold 30px helvetica;
+	text-align: center;
+}
+
+.era {
+	display: block;
+	line-height: 40px;
+	width: 40px;
+	border: thick black solid;
+	margin-bottom: 10px;
+	text-align: center;
+	background-color: #9C9C9C;
+}
+
+.era-marker {
+	background-color: yellow;
+}
+			
+.score_display {
+	display: block;
+	position: absolute; 
+	border: solid black thick;
+	text-align: center;
+	line-height: 70px;
+	line-width: 150px;
+	width: 180px;
+	height: 70px;
+	background-color: #9C9C9C;
+}
+		
+.score_display_title {
+	font: bold 15px helvetica;
+	position: absolute;
+	top: -22px;
+	left: -5px;
+}
+
+.score_display_data {
+	font: bold 30px helvetica;
+	vertical-align: middle;
+}
+
+#population_display {
+	top: 30px;
+	right: 10px;
+}
+
+#economy_display {
+	top: 150px;
+	right: 10px;
+}
+
+#reputation_display {
+	bottom: 120px;
+	right: 10px;
+}
+
+#solidarity_display {
+	bottom: 0;
+	right: 10px;
+}		
+#chart_container {
+	left: 50px;
+}
