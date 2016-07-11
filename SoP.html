@@ -228,9 +228,6 @@
 			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
 				var para = createPElement("Continue...",0,0);
 				
-				//scoreData["pop"].push({x:5,y:20});
-				//para.setAttribute("class", "col-lg-12 text-right");
-				
 				para.addEventListener("click", function() {						
 					if (score.era === 0) {
 						currentQData.state = "setupQuestions";
@@ -294,7 +291,8 @@
 					
 					var para = createPElement(currentQData.answers[i].answer, i, 0);
 					para.setAttribute("data-answerIndex",i);
-					para.setAttribute("trigger", currentQData.answers[i].trig);					
+					para.setAttribute("trigger", currentQData.answers[i].trig);		
+					para.style.marginBottom = "0.4em";										
 					para.addEventListener("click", function() {
 						currentQData.answerIndex = para.getAttribute("data-answerIndex");
 						currentQData.trigger = para.getAttribute("trigger");
