@@ -7,6 +7,20 @@
 	<meta charset="UTF-8">
 	<title>The Settlers of Palestine</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="rickshaw/rickshaw.min.css">
+	<script src="rickshaw/vendor/d3.v2.js"></script>
+	<script src="rickshaw/vendor/d3.layout.min.js"></script>
+	<script src="rickshaw/rickshaw.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/graph.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/detail.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/legend.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/examples/css/lines.css">
+
+	<script src="../vendor/d3.v3.js"></script>
+
+	<script src="../rickshaw.js"></script>
+	
 	<style>
 		#qa_container {
 			font: bold 15px helvetica;
@@ -140,6 +154,15 @@
 			bottom: 0;
 			right: 10px;
 		}		
+		#chart_container {
+			left: 50px;
+		}
+		
+		.rickshaw_graph .detail .x_label {display:none; }
+		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
+		.detail_swatch {float:right; width: 10px; height: 10px; margin: 2.5px 0 0 95px }
+		/*.rickshaw_graph .detail .date { color: #a0a0a0 }
+		.detail_data { float: left; display: inline; }*/
 	</style>
 
 </head>
@@ -193,41 +216,57 @@
 			<div id="answer_canvas" class="question_canvas"></div>	
 		</div>
 
-		<!--Population display-->
+		<!--Population display
 		<div class="score_display" id="population_display">
 			<span class="score_display_title">Population</span>
 			<span class="score_display_data score_display_numeric" id="population_value"></span>
 		</div>
 		
-		<!--Economy display-->
+		<!--Economy display
 		<div class="score_display" id="economy_display">
 			<span class="score_display_title">Economy</span>
 			<span class="score_display_data score_display_numeric" id="economy_value"></span>
 		</div>
 		
-		<!--Solidarity display-->
+		<!--Solidarity display
 		<div class="score_display" id="solidarity_display">
 			<span class="score_display_title">Solidarity</span>
 			<span class="score_display_data score_display_text" id="solidarity_value"></span>
 		</div>
 		
-		<!--Reputation display-->
+		<!--Reputation display
 		<div class="score_display" id="reputation_display">
 			<span class="score_display_title">Reputation</span>
 			<span class="score_display_data score_display_text" id="reputation_value"></span>
 		</div>
+-->
 	</div>
+<div id="chart_container">
+	<div id="chart"></div>
+	<div id="legend_container">
+		<div id="smoother" title="Smoothing"></div>
+		<div id="legend"></div>
+	</div>
+	<div id="slider"></div>
+</div>
+
 	<script language="JavaScript">
 	
 		var score = {};
+		var graph;
+		var questionCount = 0;
+		var scoreData = { "pop": [], "rep": [], "econ": [], "sol": []};
 		var currentQData = {};
 		var currentBossBattle = {};
 		var currentEraData = {};
 		var setupMultipliers = {"econ":1,"pop":1,"rep":1,"sol":1};
 		var jsonData;
+		/*var baseData = [{x:-1893456000, y:NaN},{x:-1877817600, y:NaN},{x:-1577923200, y:NaN},{x:-1562198400, y:NaN},{x:-1262304000, y:NaN},{x:-1246665600, y:NaN},{x:-946771200, y:NaN},{x:-931046400, y:NaN},{x:-631152000, y:NaN},{x:-615513600, y:NaN},{x:-315619200, y:NaN},{x:-299894400, y:NaN},{x:0, y:NaN},{x:15638400, y:NaN},{x:315532800, y:NaN},{x:331257600, y:NaN},{x:631152000, y:NaN},{x:646790400, y:NaN},{x:946684800, y:NaN},{x:962409600, y:NaN},];*/
+		var baseData = [{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN},];
 		
-		var DISPLAY_ANIM_DELAY = 1500;
-		var DISPLAY_ANIM_DELAY_OFFSET = 1000;
+		var scoreData = {"pop":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "rep":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "econ":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}], "sol":[{x:1, y:NaN},{x:2, y:NaN},{x:3, y:NaN},{x:4, y:NaN},{x:5, y:NaN},{x:6, y:NaN},{x:7, y:NaN},{x:8, y:NaN},{x:9, y:NaN},{x:10, y:NaN},{x:11, y:NaN},{x:12, y:NaN},{x:13, y:NaN},{x:14, y:NaN},{x:15, y:NaN},{x:16, y:NaN},{x:17, y:NaN},{x:18, y:NaN},{x:19, y:NaN},{x:20, y:NaN}]};
+		var DISPLAY_ANIM_DELAY = 0;//1500;
+		var DISPLAY_ANIM_DELAY_OFFSET = 0;//1000;
 		
 		/* Selects an appopriate index from within the JSON and returns a question and answers for display.
 		 * Setup questions are treated differently, with the implicit assumption that there are only two.
@@ -246,11 +285,11 @@
 			}
 			
 			if (currentEraData.bossBattle && score.numQuestions >= 1) {
-				roundData = {"era":score.era, "state":state, "hook":currentBossBattle.hook,"text":currentBossBattle.text,"answers":currentBossBattle.answers};
+				roundData = {"era":score.era, "state":state, "hook":currentBossBattle.hook,"text":currentBossBattle.text,"answers":currentBossBattle.answers, "type":currentEraData.questions[questionIndex].type};
 				currentBossBattle = {};
 				currentEraData.bossBattle = false;
 			} else {
-				roundData = {"era":score.era, "state":state, "hook":currentEraData.questions[questionIndex].hook,"text":currentEraData.questions[questionIndex].text,"answers":currentEraData.questions[questionIndex].answers};															
+				roundData = {"era":score.era, "state":state, "hook":currentEraData.questions[questionIndex].hook,"text":currentEraData.questions[questionIndex].text,"answers":currentEraData.questions[questionIndex].answers, "type":currentEraData.questions[questionIndex].type};															
 				currentEraData.questions.splice(questionIndex,1);
 			}
 			
@@ -282,7 +321,7 @@
 				currentEraData = getEraData();
 				currentEraData.bossBattle = getBossBattle();
 				resolveScore(displayTitle());
-				displayScore();					
+				//displayScore();					
 			} else if (currentQData.state === "question") {
 				resetCanvas();
 				currentQData = getRoundData();
@@ -291,7 +330,7 @@
 				resetCanvas();
 				computeVote();
 				resolveScore();
-				displayScore();
+				//displayScore();
 				displayReply();				
 			} else if (currentQData.state === "round complete") {
 				checkState();	
@@ -446,7 +485,26 @@
 			aDisplay.appendChild(para);	
 			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
 				para.style.pointerEvents = "auto";
-			});		
+			});	
+			
+			if (currentQData.type) {
+				/*scoreData.pop.push({x: baseData[questionCount].x, y: score.pop});
+				scoreData.rep.push({x: baseData[questionCount].x, y: score.rep});
+				scoreData.econ.push({x: baseData[questionCount].x, y: score.econ});
+				scoreData.sol.push({x: baseData[questionCount].x, y: score.sol});*/
+				
+				scoreData.pop[questionCount].y = score.pop;
+				if (score.rep > 100) {score.rep = 100; }
+				if (score.rep < 0) { score.rep = 0; }
+				scoreData.rep[questionCount].y = score.rep;
+				scoreData.econ[questionCount].y = score.econ;
+				if (score.sol > 100) {score.sol = 100; }
+				if (score.sol < 0) { score.sol = 0; }
+				scoreData.sol[questionCount].y = score.sol;
+				
+				questionCount++;
+			}
+					
 		}
 		
 		/* A helper function that returns a <p> element which is used for attaching text content to divs 
@@ -610,13 +668,18 @@
 			if (data == undefined) {
 				score.econ += currentQData.answers[currentQData.answerIndex].econ;
 				score.rep += currentQData.answers[currentQData.answerIndex].rep;
-				score.sol += currentQData.answers[currentQData.answerIndex].sol;				
+				score.sol += currentQData.answers[currentQData.answerIndex].sol;
+				score.pop += currentQData.answers[currentQData.answerIndex].pop;
+				
 			} else {				
 				score.econ += data.econ;
 				score.rep += data.rep;
-				score.sol += data.sol;				
+				score.sol += data.sol;
+				score.pop += data.pop;				
 			}
-						
+			
+			
+			/*			
 			if (score.rep < 40) { score.rep = 40; }
 			if (score.rep > 60) { score.rep = 60; }
 						
@@ -630,10 +693,10 @@
 			} else {
 				score.pop += Math.round(repMultiplier * data.pop);
 			}
-			
+			*/
 		}
 		
-		function displayScore() {
+		/*function displayScore() {
 
 			var pDisplay = document.querySelector("#population_value");
 			pDisplay.textContent = score.pop;
@@ -700,7 +763,7 @@
 					solValueDisplay.textContent = "Neutral";
 					solContainerDisplay.style.backgroundColor = "#9C9C9C";
 			}
-		}
+		}*/
 		
 		function failConditionReached() {
 			if (score.pop <= 1 || score.econ <=0 || score.sol <= 0) {
@@ -773,10 +836,10 @@
 				scoreDisplay[i].style.backgroundColor = "#9C9C9C";
 			}
 			
-			popDisplay.textContent = "0";
+			/*popDisplay.textContent = "0";
 			econDisplay.textContent = "0"
 			repDisplay.textContent = "Neutral"
-			solDisplay.textContent = "Neutral"
+			solDisplay.textContent = "Neutral"*/
 			
 		}
 		
@@ -787,7 +850,8 @@
 			for (i = 0; i < qDisplay.length; i++) {
 				qDisplay[i].textContent = "";
 				qDisplay[i].style.opacity = 0;
-			}			
+			}	
+			if (graph) {graph.render();	}
 		}
 		
 		function getRandomInt(min, max) {
@@ -807,7 +871,7 @@
 		}
 		
 		//Found at https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Math/round
-		(function() {
+		/*(function() {
 			/**
 			* Decimal adjustment of a number.
 			*
@@ -815,7 +879,7 @@
 			* @param {Number}  value The number.
 			* @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
 			* @returns {Number} The adjusted value.
-			*/
+			
 			function decimalAdjust(type, value, exp) {
 				// If the exp is undefined or zero...
 				if (typeof exp === 'undefined' || +exp === 0) {
@@ -854,7 +918,7 @@
 				};
 			}
 		})();
-		
+		*/
 		function startGame() {
 			
 			score = {"era":0,"econ":0,"rep":0,"sol":0,"pop":0,"numQuestions":0};						
@@ -874,6 +938,51 @@
 		}
 		
 		startGame();		
+
+//*********************************************************		
+
+graph = new Rickshaw.Graph({
+	element: document.querySelector("#chart"),
+	width: 1100,
+	height: 250,
+	renderer: 'line',
+	series: [/*{
+		data: baseData,
+	},*/ {
+		data: scoreData.pop,
+		name: 'Population',
+		color: '#4682b4'
+	}, {
+		data: scoreData.econ,
+		name: 'Economy',
+		color: '#9cc1e0'
+	}, {
+		data: scoreData.rep,
+		name: 'Reputation',
+		color: '#ccf1e0'
+	}, {
+		data: scoreData.sol,
+		name: 'Solidarity',
+		color: '#1e0992'
+	}]
+});
+
+graph.render();
+var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail({
+  graph: graph,
+  formatter: function(series, x, y) {
+		//var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+		var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+		//var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+		var data = '<span class="detail_data">' + series.name + ": " + parseInt(y) + '</span>';
+		var content = swatch + data;
+		return content;
+	}
+});
+
+x_axis.render();
 				
 	</script>
 
