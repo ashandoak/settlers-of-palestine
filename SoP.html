@@ -22,6 +22,7 @@
 		.jumbotron {
 			max-width: 1920px;
 			border-radius: 0 !important;
+			background-color: #dddddd;
 		}
 		
 		.main-group {
@@ -33,6 +34,28 @@
 			font-weight: bold;
 			margin-bottom: 1em;
 		}
+		
+		.panel {
+			border-radius: 30px;
+			background-color: #0992b2;
+			max-width: 50%;
+			min-width: 50%;
+		}
+		
+		.panel-footer {
+			border-radius: 30px;
+			background-color: #ffa858;
+			max-width: 50%;
+		}
+		
+		.well {
+			background-color: #ffa858;
+			border-radius: 30px;
+			padding-top: 20px;
+			padding-right: 20px;
+			padding-left: 20px;
+		}
+		
 		
 		.main-text-panel {
 			min-height: 
@@ -73,9 +96,9 @@
 	<div class="container-fluid">
 		<img src="images/header_1920.jpg" class="img-responsive" id="header-image">
 		<div class="jumbotron">		
-			<div class="row">
+			<div class="row panel">
 				<div class="col-lg-12">
-					<h1 class="text-left" id="era-title"></h1>					
+					<h1 class="text-center" id="era-title"></h1>					
 				</div>
 			</div>
 			<div class="row main-text-panel main-group">	
@@ -83,9 +106,9 @@
 					<p class="text-justify question-canvas" id="text-canvas"></p>
 				</div>
 			</div>
-			<div class="row main-group">
-				<div class="col-lg-12">
-					<p class="text-right question-canvas text-muted" id="answer-canvas"></p>
+			<div class="row main-group panel-footer">
+				<div class="col-lg-4 col-lg-offset-8">
+					<p class="text-right question-canvas" id="answer-canvas"></p> <!--text-muted-->
 				</div>
 			</div>
 			<div class="row">
@@ -702,8 +725,8 @@
 				orientation: 'bottom',
 				element: document.getElementById('x_axis'),
 				tickFormat: format				
-			} );
-			
+			} );			
+
 			var hoverDetail = new Rickshaw.Graph.HoverDetail({
 				graph: graph,
 				formatter: function(series, x, y) {
