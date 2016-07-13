@@ -1,0 +1,295 @@
+ <!DOCTYPE HTML>
+
+<html>
+
+<head>
+	
+	<meta charset="UTF-8">
+	<title>The Settlers of Palestine</title>
+	<script src="js/jquery-2.2.4.js"></script>
+	<script src="js/bootstrap.js"/></script>
+	<link type="text/css" rel="stylesheet" href="css/rickshaw.min.css">
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.css">
+	<script src="js/d3.v2.js"></script>
+
+	<script src="js/rickshaw.min.js"></script>
+	
+	<script src="js/TextContainer.js"></script>
+
+
+
+	
+	<style>
+		
+		.jumbotron {
+			max-width: 1920px;
+			border-radius: 0 !important;
+			background-color: #dddddd;
+		}
+		
+		.main-group {
+			margin: 0 2% 0 2%;
+		}
+		
+		.hook-text {
+			display: block;
+			font-weight: bold;
+			margin-bottom: 1em;
+		}
+		
+		.panel {
+			border-radius: 30px;
+			background-color: #0992b2;
+			max-width: 50%;
+			min-width: 50%;
+		}
+		
+		.panel-footer {
+			border-radius: 30px;
+			background-color: #ffa858;
+			max-width: 50%;
+		}
+		
+		.well {
+			background-color: #ffa858;
+			border-radius: 30px;
+			padding-top: 20px;
+			padding-right: 20px;
+			padding-left: 20px;
+		}
+		
+		
+		.main-text-panel {
+			min-height: 
+		}
+		
+		#answer-canvas {
+		 margin-bottom: 2em;
+		}
+		
+		@media screen and (min-width: 320px) {
+			#chart {width: 320px; height: 72px;}
+		}
+		
+		@media screen and (min-width: 480px) {
+			#chart {width: 480px; height: 109px;}
+		}
+		
+		@media screen and (min-width: 1224px) {
+			#chart {width: 1100px; height: 250px;}		
+		}
+		
+		.question-canvas{
+
+			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/		
+		}
+		.rickshaw_graph .detail .x_label {display:none; }
+		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
+		.detail_swatch {float:right; width: 10px; height: 10px; margin: 2.5px 0 0 95px }
+		/*.rickshaw_graph .detail .date { color: #a0a0a0 }
+		.detail_data { float: left; display: inline; }*/
+		
+	</style>
+
+</head>
+
+<body>
+	
+	<div class="container-fluid">
+		<img src="images/header_1920.jpg" class="img-responsive" id="header-image">
+		<div class="jumbotron">		
+			
+			<div class="row panel">
+				<div class="col-lg-12">
+					<h1 class="text-center" id="era-title"></h1>
+					<h3 class="text-center" id="hook-text"></h3>
+				</div>
+			</div>
+			
+			<div class="row main-text-panel main-group">	
+				<div  class="col-lg-12 well well-sm">
+					<p class="text-justify question-canvas" id="text-canvas"></p>
+				</div>
+			</div>
+		
+			<div class="row main-group panel-footer">
+				<div class="col-lg-4 col-lg-offset-8">
+					<p class="text-right question-canvas" id="answer-canvas"></p> <!--text-muted-->
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-lg-10 col-lg-offset-1">
+					<div id="chart_container">
+						<div id="chart"></div>
+						<div id="legend_container">
+							<div id="smoother" title="Smoothing"></div>
+							<div id="legend"></div>
+						</div>
+						<div id="slider"></div>
+						<div id="x_axis"></div>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+	</div>
+
+
+	<script language="JavaScript">
+	
+			var score = {};
+			var QUESTIONS_PER_ERA = 2;
+			var QUESTIONS_PER_GAME = 20;
+		var graph;
+		var questionCount = 0;
+		var scoreData = { "pop": [], "rep": [], "econ": [], "sol": []};
+		var currentQData = {};
+		var currentBossBattle = {};
+		var currentEraData = {};
+		var setupMultipliers = {"econ":1,"pop":1,"rep":1,"sol":1};
+		var jsonData;
+		
+		var scoreData = {};
+		
+		var hDisplay = document.querySelector("#hook-text");
+		var eDisplay = document.querySelector("#era-title");			
+		var tDisplay = document.querySelector("#text-canvas");
+		var aDisplay = document.querySelector("#answer-canvas");
+			
+		var counter = 1;
+		var complete = false;
+		
+		var DISPLAY_ANIM_DELAY = 0;//1500;
+		var DISPLAY_ANIM_DELAY_OFFSET = 0;//1000;
+		
+		function frame() {
+			if (!complete) {
+				testFunc();
+			}
+			requestAnimationFrame(frame);
+		}
+		
+		requestAnimationFrame(frame);
+		
+		function loadScript(url, callback) {
+			var head = document.getElementsByTagName('head')[0];
+			var script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.src = url;
+
+			script.onreadystatechange = callback;
+			script.onload = callback;
+			
+			head.appendChild(script);
+		}
+
+		function gameSetup() {
+
+			jsonData = generateGameContent(SoPQuestionData);	
+//now use this data to populate screen 			
+			currentQData.state = "setup";
+
+		}
+		
+		
+		function generateGameContent(json) {
+		
+			var arr = [];
+						
+			for (var i=0; i<json.length; i++) {
+				
+				arr.push(json[i].newEra);
+				var	questionArray = json[i].questions;			
+				var bossQuestionIndex = getIndex(questionArray, "B");
+								
+				if (bossQuestionIndex > 0) {					
+					var tempObj = questionArray.splice(bossQuestionIndex,1);
+					arr.push(questionArray.splice(Math.floor(questionArray.length*Math.random),1)[0]);
+					arr.push(tempObj[0]);
+				} else {
+					for (var j=0; j<QUESTIONS_PER_ERA; j++) {
+						arr.push(questionArray.splice(Math.floor(questionArray.length*Math.random),1)[0]);
+					}
+				}				
+		
+			}
+			
+			return arr;
+
+		}
+		
+		function getIndex(data, type) {
+			
+			for (var i=0; i<data.length; i++) {
+				if (data[i].type === type) {
+					return i;					
+				}												
+			}
+			return -1;
+		}
+		
+
+		
+		loadScript("data/SoPQuestionDataTEMP.json", gameSetup);	
+		
+		
+		function testFunc() {
+			var e = document.createTextNode("test title");
+			
+			//Update this to randomly generate a score per metric, perhaps based off a seed value
+			var t = document.createTextNode("test text" + counter++);
+		
+			eDisplay.appendChild(e);
+			tDisplay.appendChild(t);
+			
+			$(eDisplay).animate({opacity: "1.0"},0,"linear",function() { return true; });
+
+			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
+				var para = createPElement("Continue...",0,0);
+				
+				para.addEventListener("click", function() {						
+					if (score.era === 0) {
+						currentQData.state = "setupQuestions";
+			
+					} else {
+						currentQData.state = "question";
+			
+					}
+					jsonData.push({"stuff":"all the things","and":0});
+					requestAnimationFrame(frame);
+					complete = false;
+				})
+				$("#answer-canvas").addClass("col-lg-12");
+				aDisplay.appendChild(para);
+				
+				
+				$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
+					para.style.pointerEvents = "auto";
+				});
+
+			});
+
+			complete = true;			
+		}
+		
+		function createPElement(s, mt, mb) {
+	
+			var para = document.createElement("p");
+			var a = document.createTextNode(s);
+			
+			para.appendChild(a);
+			para.style.cursor = "default";
+			para.style.pointerEvents = "none";
+			
+			if (mt != undefined) { para.style.marginTop = mt; } 
+			if (mb != undefined) { para.style.marginBottom = mb; }
+
+			return para;
+		}
+	</script>
+
+
+</body>
+
+</html>
