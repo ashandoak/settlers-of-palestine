@@ -14,9 +14,7 @@
 
 	<script src="js/rickshaw.min.js"></script>
 	
-	<script src="js/TextContainer.js"></script>
-
-
+	
 
 	
 	<style>
@@ -165,12 +163,14 @@
 		
 		function frame() {
 			if (!complete) {
-				testFunc();
+				displayContent();
 			}
 			requestAnimationFrame(frame);
 		}
 		
-		requestAnimationFrame(frame);
+		function runGame() {
+			requestAnimationFrame(frame);
+		}
 		
 		function loadScript(url, callback) {
 			var head = document.getElementsByTagName('head')[0];
@@ -189,6 +189,8 @@
 			jsonData = generateGameContent(SoPQuestionData);	
 //now use this data to populate screen 			
 			currentQData.state = "setup";
+			
+			runGame();
 
 		}
 		
@@ -234,7 +236,38 @@
 		loadScript("data/SoPQuestionDataTEMP.json", gameSetup);	
 		
 		
-		function testFunc() {
+		function displayContent() {
+			
+			var h, t, a;
+			var currentContent = jsonData.shift();
+			
+			if (currentContent.hook != "") {
+				h = document.createTextNode(currentContent.hook);
+				hDisplay.appendChild(h);
+			}
+			
+			if (currentContent.text != "") {
+				t = document.createTextNode(currentContent.text);
+				tDisplay.appendChild(t);
+			}
+			
+			if (currentContent.answers) {
+			
+			} else {
+				var para = createPElement("Continue...",0,0);
+				
+				para.addEventListener("click", function() {						
+					requestAnimationFrame(frame);
+					complete = false;
+				})
+				//$("#answer-canvas").addClass("col-lg-12");
+				aDisplay.appendChild(para);
+			}
+		
+		
+		
+					
+		/*
 			var e = document.createTextNode("test title");
 			
 			//Update this to randomly generate a score per metric, perhaps based off a seed value
@@ -268,10 +301,43 @@
 					para.style.pointerEvents = "auto";
 				});
 
-			});
+			});*/
 
 			complete = true;			
 		}
+		
+	/*	function displayAnswer() {
+			var aDisplay = document.querySelector("#answer-canvas");
+			
+			for(var i=0; i<currentQData.answers.length; i++) {
+
+				(function(i) {
+					
+					var para = createPElement(currentQData.answers[i].answer, i, 0);
+					para.setAttribute("data-answerIndex",i);
+					para.setAttribute("trigger", currentQData.answers[i].trig);		
+					para.style.marginBottom = "0.4em";										
+					para.addEventListener("click", function() {
+						currentQData.answerIndex = para.getAttribute("data-answerIndex");
+						currentQData.trigger = para.getAttribute("trigger");
+						if (currentQData.state === "setupQuestions") { 
+							resolveSetupMultipliers();
+						} else {
+							currentQData.state = "reply"; 
+							updateGraph();
+						}
+						score.numQuestions++;
+					});
+					aDisplay.appendChild(para);
+				})(i)				
+			}
+			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
+				var answers = document.querySelectorAll("#answer-canvas p");
+				for (i = 0; i < answers.length; i++) {
+					answers[i].style.pointerEvents = "auto";
+				}
+			});
+		}*/
 		
 		function createPElement(s, mt, mb) {
 	
@@ -279,8 +345,8 @@
 			var a = document.createTextNode(s);
 			
 			para.appendChild(a);
-			para.style.cursor = "default";
-			para.style.pointerEvents = "none";
+			//para.style.cursor = "default";
+			//para.style.pointerEvents = "none";
 			
 			if (mt != undefined) { para.style.marginTop = mt; } 
 			if (mb != undefined) { para.style.marginBottom = mb; }
