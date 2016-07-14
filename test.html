@@ -1,4 +1,4 @@
- <!DOCTYPE HTML>
+<!DOCTYPE HTML>
 
 <html>
 
@@ -55,15 +55,29 @@
 			padding-top: 20px;
 			padding-right: 20px;
 			padding-left: 20px;
-			animation: pulse 5s infinite;
+			
 		}
 		
-		@keyframes pulse {
-			0% {
-				background-color: #000000;
+		.animation {
+			animation: fadeIn 1s;
+		}
+		
+		/* Chrome, Safari, Opera */
+		@-webkit-keyframes example {
+    		from {
+				opacity:0;
+    		}
+    		to {
+    			opacity: 1;
 			}
-			100% {
-				background-color: #FFFFFF;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+			to {
+				opacity: 1;
 			}
 		
 		}
@@ -109,7 +123,7 @@
 		<img src="images/header_1920.jpg" class="img-responsive" id="header-image">
 		<div class="jumbotron">		
 			
-			<div class="row panel">
+			<div class="row panel" id="header">
 				<div class="col-lg-12">
 					<h1 class="text-center question-canvas" id="era-title"></h1>
 					<h3 class="text-center question-canvas" id="hook-text"></h3>
@@ -280,15 +294,18 @@
 		
 		
 		function displayContent() {
-			
+			var temp = document.querySelector("#header");
 			var h, t, a;
 			var curGameContent = gameObject.gameContent.shift();
 			
 			if (curGameContent.type == "newEra") { updateGraph(); }
 			
 			if (curGameContent.hook != "") {
+				
+				temp.classList.remove("animation");
 				h = document.createTextNode(curGameContent.hook);
 				hDisplay.appendChild(h);
+				temp.classList.add("animation");
 			}
 			
 			if (curGameContent.text != "") {
@@ -308,6 +325,11 @@
 							if (curGameContent.type != "setup" && curGameContent.type != "newEra") { updateGraph(); }
 							requestAnimationFrame(frame);
 							displayContentComplete = false;
+							
+							temp.classList.remove("animation");
+							temp.offsetWidth = temp.offsetWidth;
+							temp.classList.add("animation");
+					
 						});
 						aDisplay.appendChild(para);
 					})(i)
@@ -319,13 +341,18 @@
 					resolveScore(curGameContent);
 					requestAnimationFrame(frame);
 					displayContentComplete = false;
+					
+					temp.classList.remove("animation");
+					temp.offsetWidth = temp.offsetWidth;
+					temp.classList.add("animation");
 				})
 				aDisplay.appendChild(para);
 			}
 				
 			displayContentComplete = true;			
 		}
-			
+		
+	
 		function resolveScore(answerObj) {
 		
 			//Could be impoved with better json structure
@@ -384,14 +411,6 @@
 		}
 		
 		function updateGraph() {
-			/*scoreData.pop[2*(score.era-1)+ score.numQuestions].y = score.pop;
-			if (score.rep > 100) {score.rep = 100; }
-			if (score.rep < 0) { score.rep = 0; }
-			scoreData.rep[2*(score.era-1) + score.numQuestions].y = score.rep;
-			scoreData.econ[2*(score.era-1) + score.numQuestions].y = score.econ;
-			if (score.sol > 100) {score.sol = 100; }
-			if (score.sol < 0) { score.sol = 0; }
-			scoreData.sol[2*(score.era-1) + score.numQuestions].y = score.sol;*/
 
 			scoreData.pop[gameObject.contentCount].y = gameObject.gameScore.pop;
 			scoreData.econ[gameObject.contentCount].y = gameObject.gameScore.econ;
@@ -405,19 +424,7 @@
 
 
 		}
-		
-		function clearGraph() {
-			$('#chart_container').html(
-			'<div id="chart"></div><div id="legend_container"></div><div id="slider"></div><div id="x_axis"></div>'
-			);	
 
-			/*scoreData = {
-				"pop":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
-				"rep":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
-				"econ":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
-				"sol":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}]
-			};*/
-		}
 	
 		function drawGraph() {
 			
