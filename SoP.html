@@ -13,8 +13,8 @@
 	<script src="js/d3.v2.js"></script>
 
 	<script src="js/rickshaw.min.js"></script>
-
-
+	
+	
 
 	
 	<style>
@@ -24,69 +24,67 @@
 			border-radius: 0 !important;
 			background-color: #dddddd;
 		}
+				
+		#headerContent {
+			background-color: #0992b2;
+			border-radius: 20px;	
+			margin-bottom: 1em;
+			//opacity: 0;
+		}
+		
+		#mainContent {
+			background-color: #ffa858;
+			border-radius: 20px;
+			margin-bottom: 1em;	
+			//opacity: 0;			
+		}
+		
+		#answerContent {
+			background-color: #ffa858;
+			border-radius: 20px;		
+			margin-bottom: 2em;	
+			//opacity: 0;
+		}
+		
+		#chart_container{
+			padding: 0 50px 0 20;
+		}
+		
+		/*#hook-text {
+			font-weight: bold;
+			font-size:
+		}*/
 		
 		.main-group {
 			margin: 0 2% 0 2%;
 		}
 		
-		.hook-text {
-			display: block;
-			font-weight: bold;
-			margin-bottom: 1em;
+		.fadeInAnimation {
+			animation: fadeIn 2s linear;
 		}
 		
-		.panel {
-			border-radius: 30px;
-			background-color: #0992b2;
-			max-width: 50%;
-			min-width: 50%;
+		/* Chrome, Safari, Opera */
+		@-webkit-keyframes fadeIn {
+    		from { opacity:0; }
+    		to { opacity: 1; }
 		}
-		
-		.panel-footer {
-			border-radius: 30px;
-			background-color: #ffa858;
-			max-width: 50%;
-		}
-		
-		.well {
-			background-color: #ffa858;
-			border-radius: 30px;
-			padding-top: 20px;
-			padding-right: 20px;
-			padding-left: 20px;
-		}
-		
-		
-		.main-text-panel {
-			min-height: 
-		}
-		
-		#answer-canvas {
-		 margin-bottom: 2em;
-		}
-		
-		@media screen and (min-width: 320px) {
-			#chart {width: 320px; height: 72px;}
-		}
-		
-		@media screen and (min-width: 480px) {
-			#chart {width: 480px; height: 109px;}
-		}
-		
-		@media screen and (min-width: 1224px) {
-			#chart {width: 1100px; height: 250px;}		
-		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }		
+		}		
 		
 		.question-canvas{
-
 			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/		
 		}
-		.rickshaw_graph .detail .x_label {display:none; }
-		.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
-		.detail_swatch {float:right; width: 10px; height: 10px; margin: 2.5px 0 0 95px }
-		/*.rickshaw_graph .detail .date { color: #a0a0a0 }
-		.detail_data { float: left; display: inline; }*/
 		
+		.detail_swatch {
+			float:right; 
+			width: 10px; 
+			height: 10px; 
+			margin: 2.5px 0 0 95px 
+		}
+				
 	</style>
 
 </head>
@@ -94,544 +92,105 @@
 <body>
 	
 	<div class="container-fluid">
+		
 		<img src="images/header_1920.jpg" class="img-responsive" id="header-image">
+		
 		<div class="jumbotron">		
-			<div class="row panel">
-				<div class="col-lg-12">
-					<h1 class="text-center" id="era-title"></h1>					
-				</div>
-			</div>
-			<div class="row main-text-panel main-group">	
-				<div  class="col-lg-12 well well-sm">
-					<p class="text-justify question-canvas" id="text-canvas"></p>
-				</div>
-			</div>
-			<div class="row main-group panel-footer">
-				<div class="col-lg-4 col-lg-offset-8">
-					<p class="text-right question-canvas" id="answer-canvas"></p> <!--text-muted-->
-				</div>
-			</div>
+			
 			<div class="row">
-				<div class="col-lg-10 col-lg-offset-1">
-					<div id="chart_container">
-						<div id="chart"></div>
-						<div id="legend_container">
-							<div id="smoother" title="Smoothing"></div>
-							<div id="legend"></div>
-						</div>
-						<div id="slider"></div>
-						<div id="x_axis"></div>
-					</div>
+				<div class="col-xs-6" id="headerContent">				
+					<h1 class="text-center question-canvas" id="era-title"></h1>
+					<h2 class="text-center question-canvas" id="hook-text"></h2>
 				</div>
 			</div>
+			
+			<div class="well well-lg main-group" id="mainContent">	
+				<p class="text-justify question-canvas" id="text-canvas"></p>
+			</div>
+		
+			<div class="row">
+				<div class="col-xs-4 pull-right well well-sm main-group" id="answerContent">
+					<div class="text-right question-canvas" id="answer-canvas"></div> 
+				</div>
+			</div>
+						
+			<div class="well well-lg" id="chart_container">
+				<div id="chart"></div>
+				<div id="x_axis"></div>
+			</div>	
+		
 		</div>
+	
 	</div>
 
 
 	<script language="JavaScript">
 	
-		var score = {};
+			var score = {};
+			var QUESTIONS_PER_ERA = 2;
+			var QUESTIONS_PER_GAME = 20;
 		var graph;
-		var questionCount = 0;
+		
 		var scoreData = { "pop": [], "rep": [], "econ": [], "sol": []};
-		var currentQData = {};
-		var currentBossBattle = {};
-		var currentEraData = {};
+
 		var setupMultipliers = {"econ":1,"pop":1,"rep":1,"sol":1};
 		var jsonData;
 		
 		var scoreData = {};
 		
-		var DISPLAY_ANIM_DELAY = 0;//1500;
-		var DISPLAY_ANIM_DELAY_OFFSET = 0;//1000;
+		var gameObject = {};
 		
-		/* Selects an appopriate index from within the JSON and returns a question and answers for display.
-		 * Setup questions are treated differently, with the implicit assumption that there are only two.
-		 * The function also checks to see if there is a boss battle question available, and if so it should be
-		 * assigned to the roundData variable.
-		 */
-		function getRoundData(state) {
-				
-			var roundData = {}; 
-			var questionIndex; 
-			
-			if (state === "setupQuestions") {
-				questionIndex = 0;
-			} else {
-				questionIndex = getRandomInt(0,currentEraData.questions.length);
-			}
-			
-			if (currentEraData.bossBattle && score.numQuestions >= 1) {
-				roundData = {"era":score.era, "state":state, "hook":currentBossBattle.hook,"text":currentBossBattle.text,"answers":currentBossBattle.answers, "type":currentEraData.questions[questionIndex].type};
-				currentBossBattle = {};
-				currentEraData.bossBattle = false;
-			} else {
-				roundData = {"era":score.era, "state":state, "hook":currentEraData.questions[questionIndex].hook,"text":currentEraData.questions[questionIndex].text,"answers":currentEraData.questions[questionIndex].answers, "type":currentEraData.questions[questionIndex].type};															
-				currentEraData.questions.splice(questionIndex,1);
-			}
-			
-			return roundData;
-		}
 		
-		/* An alternate function to GameLoop used for inital setup.
-		 * The 'setup' flag is used to display the opening preamble, while the 'setupQuestions' flag is used 
-		 * to display the opening questions.
-		 */
-		function setup() {
-			resetCanvas();
-			if (currentQData.state === "setup") {
-				currentEraData = getEraData();
-				resolveScore(displayTitle());
-			} else if (currentQData.state === "setupQuestions") {
-				currentQData = getRoundData(currentQData.state);
-				displayQuestion();
-			}
-		}
-		
-		/* Controls execution of the game. GameLoop is called at the end of each player interaction point.
-		 * All display control and game state checks are run through this function.
-		 */	
-		function gameLoop() {			
+		var hDisplay = document.querySelector("#hook-text");
+		var eDisplay = document.querySelector("#era-title");			
+		var tDisplay = document.querySelector("#text-canvas");
+		var aDisplay = document.querySelector("#answer-canvas");
 			
-			if (currentQData.state === "new era") {
+		var counter = 1;
+		var displayContentComplete = false;
+		
+		
+		$(window).on('resize', function(){
+			graph.configure({
+				width: window.innerWidth - 200,
+				height: 250
+			});
+			graph.render();
+		});
+		
+		function frame() {
+			if (!displayContentComplete) {
 				resetCanvas();
-				currentEraData = getEraData();
-				currentEraData.bossBattle = getBossBattle();
-				resolveScore(displayTitle());					
-			} else if (currentQData.state === "question") {
-				resetCanvas();
-				currentQData = getRoundData();
-				displayQuestion();
-			} else if (currentQData.state === "reply") {
-				resetCanvas();
-				computeVote();
-				resolveScore();
-				displayReply();				
-			} else if (currentQData.state === "round complete") {
-				checkState();	
-			} else if (currentQData.state === "game complete") {
-				resetCanvas();
-				displayEndScreen();
-			}
-			
-			if (failConditionReached()) {
-				resetCanvas();
-				displayGameOver();
-			}
-		
-		}
-		
-		/* This function is used to display text and information at the beginnning of each new era (including the 
-		 * opening preamle). 
-		 * The current implementation of this function displays the score values provided with the beginning of the 
-		 * era, but these should be changed eventually (possibly to a less aboslute description).
-		 * This function returns a dictionary that contains the score stored in the title array of the current era (which
-		 * then passed to resolveScore).
-		 */
-		function displayTitle() {
-			
-			//put this somewhere else...
-			document.querySelector("#era-title").textContent = "";
-			//**************************			
-			
-			var eDisplay = document.querySelector("#era-title");			
-			var tDisplay = document.querySelector("#text-canvas");
-			var aDisplay = document.querySelector("#answer-canvas");									
-							
-			var e = document.createTextNode(currentEraData.title.title);
-			
-			//Update this to randomly generate a score per metric, perhaps based off a seed value
-			var t = document.createTextNode(currentEraData.title.text);
-			
-			eDisplay.appendChild(e);
-			tDisplay.appendChild(t);
-			
-			$(eDisplay).animate({opacity: "1.0"},0,"linear",function() { return true; });
-
-			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY+DISPLAY_ANIM_DELAY_OFFSET, "linear", function() {
-				var para = createPElement("Continue...",0,0);
 				
-				para.addEventListener("click", function() {						
-					if (score.era === 0) {
-						currentQData.state = "setupQuestions";
-						setup();
-					} else {
-						currentQData.state = "question";
-						gameLoop();
-					}
-				})
-				$("#answer-canvas").addClass("col-lg-12");
-				aDisplay.appendChild(para);
-				
-				
-				$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-					para.style.pointerEvents = "auto";
-				});
-
-			});				
-
-			return {'econ':currentEraData.title.econ,'pop':currentEraData.title.pop,'rep':currentEraData.title.rep,'sol':currentEraData.title.sol};
-		}
-		
-		/* Displays the currrently selected question on screen. Calls displayAnswer
-		 */
-		function displayQuestion() {
-
-			var tDisplay = document.querySelector("#text-canvas");
-			
-			if (currentQData.hook != "") {
-				var he = document.createElement("SPAN");
-				he.setAttribute("class","hook-text"); 
-				var h = document.createTextNode(currentQData.hook);
-				he.appendChild(h);
-				var t = document.createTextNode(currentQData.text);
-				
-				//hDisplay.appendChild(h);
-				tDisplay.appendChild(he);
-				tDisplay.appendChild(t);
-				
-				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", displayAnswer);			
-
-			} else {
-				var t = document.createTextNode(currentQData.text);
-
-				tDisplay.appendChild(t);
-
-				$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", displayAnswer);
-			}
-		}		
-		
-		/* Displays the set of answers for the currently selected question on screen. Each answer is assigned 
-		 * an event listener and and attribute to track the index of the answer in the currentQData (i.e. question) 
-		 * array. The trigger for each answer is also tracked. 
-		 */
-		function displayAnswer() {
-			var aDisplay = document.querySelector("#answer-canvas");
-			
-			for(var i=0; i<currentQData.answers.length; i++) {
-
-				(function(i) {
+				if (gameObject.gameContent.length > 0) {					
+					displayContent();
 					
-					var para = createPElement(currentQData.answers[i].answer, i, 0);
-					para.setAttribute("data-answerIndex",i);
-					para.setAttribute("trigger", currentQData.answers[i].trig);		
-					para.style.marginBottom = "0.4em";										
-					para.addEventListener("click", function() {
-						currentQData.answerIndex = para.getAttribute("data-answerIndex");
-						currentQData.trigger = para.getAttribute("trigger");
-						if (currentQData.state === "setupQuestions") { 
-							resolveSetupMultipliers();
-						} else {
-							currentQData.state = "reply"; 
-							updateGraph();
-						}
-						score.numQuestions++;
-					});
-					aDisplay.appendChild(para);
-				})(i)				
-			}
-			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				var answers = document.querySelectorAll("#answer-canvas p");
-				for (i = 0; i < answers.length; i++) {
-					answers[i].style.pointerEvents = "auto";
-				}
-			});
-		}
-		
-		/* Displays the response result of the chosen answer. This function will eventually need some logic
-		 * that chooses an alternative answer/response in the event of a low-solidarity vote.
-		 */
-		function displayReply() {
-
-			var tDisplay = document.querySelector("#text-canvas");
-			var aDisplay = document.querySelector("#answer-canvas");
-						
-			var r = document.createTextNode(currentQData.answers[currentQData.answerIndex].reply);
-			
-			tDisplay.appendChild(r);
-			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");			
-			
-			var para = createPElement("Continue...",0,0);	
-			
-			para.addEventListener("click", function() {						
-				if (currentQData.state === "setupQuestions" && score.numQuestions < 2) {
-					resolveScore();
-					setup();
 				} else {
-					currentQData.state = "round complete";
-					gameLoop();
-				}
-			});
-			aDisplay.appendChild(para);	
-			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				para.style.pointerEvents = "auto";
-			});						
-		}
-		
-		/* A helper function that returns a <p> element which is used for attaching text content to divs 
-		 * in the display area.
-		 */ 
-		function createPElement(s, mt, mb) {
-			
-			var para = document.createElement("p");
-			var a = document.createTextNode(s);
-			
-			para.appendChild(a);
-			para.style.cursor = "default";
-			para.style.pointerEvents = "none";
-			
-			if (mt != undefined) { para.style.marginTop = mt; } 
-			if (mb != undefined) { para.style.marginBottom = mb; }
-
-			return para;
-		}
-	
-		/* Updates the era UI. 
-		 */
-		function displayEra() {						
-			document.querySelector("#era_"+score.era.toString()).style.backgroundColor = "yellow";
-			if (currentQData.era > 0 && currentQData.era < 11) {
-				document.querySelector("#era_"+currentQData.era.toString()).style.backgroundColor = "#9C9C9C";	
-			}
-		}
-		
-		/* Checks the current state of the game to decie whether or not to continue to the next question, to
-		 * cycle to the next era, or to end the game. This function assumes there are two questions asked at
-		 * every era.
-		 */
-		function checkState() {
-			if (score.numQuestions >= 2) {
-				if (currentQData.era >= jsonData.eras.length-1) {
-					currentQData.state = "game complete";
-				} else {
-					score.era++;
-					score.numQuestions = 0;
-					currentQData.state = "new era";					
-				}
-			} else {				
-				currentQData.state = "question";
-			}
-			gameLoop();
-		}
-
-		/* Checks the current solidarity level of the kibbutz. If solidarity is low a random roll determines
-		 * whether or not the kibbutz votes with or against the player/
-		 * A new implementation of this function requires that an alterative answer is chosen based on the 
-		 * kibbutz vote.
-		 */
-		function computeVote() {
-			if (score.sol < 50) {
-				if (Math.random() <= 0.5) {
-					currentQData.answers[currentQData.answerIndex].reply = "Unfortunately, the kibbutz disagrees with your position...";
-					currentQData.answers[currentQData.answerIndex].econ = 0;
-					currentQData.answers[currentQData.answerIndex].pop = 0;
-					currentQData.answers[currentQData.answerIndex].rep = 0;
-					currentQData.answers[currentQData.answerIndex].sol = 0;					
+					displayGameOver();
 				}
 			}
-		
+			requestAnimationFrame(frame);
 		}
-		
-		/* Returns an array containing all data in the current era.
-		 */
-		function getEraData() {
-		
-			return jsonData.eras[score.era];
-			
-		}
-	
-		/* Determines whether or not the current era contains a boss battle. If it does, the boss battle question
-		 * is assigned to the appropriate variable, and is removed from the currentEraData array.
-		 */
-		function getBossBattle() {
-			
-			for ( i = 0; i < currentEraData.questions.length; i++) {
-				if (currentEraData.questions[i].type === "B") {
-					currentBossBattle = currentEraData.questions[i];
-					currentEraData.questions.splice(i,1);
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		/* Assigns score multipliers based on player responses to setup questions.
-		 * Current implementation overwrites the results of the answer of the first question. A possible future
-		 * implementation includes either making ideology and location affect different multipliers; or, multiplying 
-		 * multiplier values together.
-		 * The flow here is unusual, since this fucntion is only called during setup, it calls displayReply directly.
-		 */
-		function resolveSetupMultipliers() {
-			switch (currentQData.trigger) {
-				case "marxist":
-					setupMultipliers.ideology = "marxist";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "socialist":
-					setupMultipliers.ideology = "marxist";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "sionist":
-					setupMultipliers.ideology = "marxist";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "religious":
-					setupMultipliers.ideology = "marxist";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "north":
-					setupMultipliers.location = "north";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "east":
-					setupMultipliers.location = "east";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				case "south":
-					setupMultipliers.location = "south";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-					break;
-				default:
-					setupMultipliers.ideology = "none";
-					setupMultipliers.location = "unknown";
-					setupMultipliers.econ = 1;
-					setupMultipliers.pop = 1;
-					setupMultipliers.rep = 1;
-					setupMultipliers.sol = 1;
-			}
-			resetCanvas();
-			displayReply();
-		}
-		
-		function updateGraph() {
-			scoreData.pop[2*(score.era-1)+ score.numQuestions].y = score.pop;
-			if (score.rep > 100) {score.rep = 100; }
-			if (score.rep < 0) { score.rep = 0; }
-			scoreData.rep[2*(score.era-1) + score.numQuestions].y = score.rep;
-			scoreData.econ[2*(score.era-1) + score.numQuestions].y = score.econ;
-			if (score.sol > 100) {score.sol = 100; }
-			if (score.sol < 0) { score.sol = 0; }
-			scoreData.sol[2*(score.era-1) + score.numQuestions].y = score.sol;
 
-			
-			graph.update();
-			
-			gameLoop();
 
-		}
-		
-		function resolveScore(data) {
 
-			if (data == undefined) {
-				score.econ += currentQData.answers[currentQData.answerIndex].econ;
-				score.rep += currentQData.answers[currentQData.answerIndex].rep;
-				score.sol += currentQData.answers[currentQData.answerIndex].sol;
-				score.pop += currentQData.answers[currentQData.answerIndex].pop;
-				
-			} else {				
-				score.econ += data.econ;
-				score.rep += data.rep;
-				score.sol += data.sol;
-				score.pop += data.pop;				
-			}
-
-		}
-		
-		function failConditionReached() {
-			if (score.pop <= 1 || score.econ <=0 || score.sol <= 0) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		
 		function displayGameOver() {
-
-			var tDisplay = document.querySelector("#text-canvas");
-			var aDisplay = document.querySelector("#answer-canvas");			
 			
-			var t = document.createTextNode("The population of your kibbutz has dropped to nothing. Unfortunately, the 'experiment' has been a failure.");					
-
+			var h = document.createTextNode("Game Over");
+			var t = document.createTextNode("Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...");					
+			hDisplay.appendChild(h);
 			tDisplay.appendChild(t)
-
-			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");	
 			
 			var para = createPElement("Click to replay...",0,0);
 			
-			para.addEventListener("click", startGame);
+			para.addEventListener("click", function() {
+				loadScript("data/SoPQuestionDataTEMP.json", gameSetup);
+				displayContentComplete = false;
+			});
 			aDisplay.appendChild(para);	
-			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				para.style.pointerEvents = "auto";
-			});	
 
+			displayContentComplete = true;
 		}
-		
-		function displayEndScreen() {
-
-			var tDisplay = document.querySelector("#text-canvas");
-			var aDisplay = document.querySelector("#answer-canvas");			
-			
-			var e = document.createTextNode("Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...");
-			
-			tDisplay.appendChild(e)	
-			
-			$(tDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear");
-			
-			var para = createPElement("Click to replay...",0,0);
-			
-			para.addEventListener("click", startGame);
-			aDisplay.appendChild(para);	
-			$(aDisplay).animate({opacity: "1.0"}, DISPLAY_ANIM_DELAY, "linear", function() {
-				para.style.pointerEvents = "auto";
-			});	
-
-		}
-		
-		function resetCanvas() {
-			var qDisplay = document.querySelectorAll(".question-canvas");
-			for (i = 0; i < qDisplay.length; i++) {
-				qDisplay[i].textContent = "";
-				qDisplay[i].style.opacity = 0;
-			}	
-			if (graph) {graph.render();	}
-		}
-		
-		function getRandomInt(min, max) {
-			
-			return Math.floor(Math.random() * (max - min)) + min;
-		
-		}
-		
-		
-		function getRandQuestionIndex() {
-			if (currentEraData.questions.length > 0) {
-				var r = getRandomInt(0,currentEraData.questions.length);
-				return r;
-			} else {
-				displayEndScreen();
-			}			
-		}		
 		
 		function loadScript(url, callback) {
 			var head = document.getElementsByTagName('head')[0];
@@ -646,30 +205,231 @@
 		}
 
 		function gameSetup() {
-			jsonData = SoPQuestionData;
-			currentEraData = getEraData();
-			currentQData.state = "setup";
-			setup();
-			console.log("done");
+
+			gameObject.gameContent = generateGameContent(SoPQuestionData);	
+			gameObject.gameScore = {"pop": 0, "econ": 0, "rep": 0, "sol": 0};
+			gameObject.contentCount = 0;
+			
+			drawGraph();
+			
+			requestAnimationFrame(frame);
+
+		}
+		
+		
+		function generateGameContent(json) {
+		
+			var arr = [];
+					
+			for (var i=0; i<json.length; i++) {
+				
+				arr.push(json[i].newEra);
+				var	questionArray = json[i].questions;	
+				
+				if (json[i].type == "setup") {
+					arr.push(questionArray[0]);
+					arr.push(questionArray[1]);
+				} else {						
+					var bossQuestionIndex = getIndex(questionArray, "B");
+									
+					if (bossQuestionIndex > 0) {					
+						var tempObj = questionArray.splice(bossQuestionIndex,1);
+						arr.push(questionArray.splice(Math.floor(questionArray.length*Math.random()),1)[0]);
+						arr.push(tempObj[0]);
+					} else {
+						for (var j=0; j<QUESTIONS_PER_ERA; j++) {
+							arr.push(questionArray.splice(Math.floor(questionArray.length*Math.random()),1)[0]);
+						}
+					}				
+				}
+			}
+			
+			return arr;
+
+		}
+		
+		function getIndex(data, type) {
+			
+			for (var i=0; i<data.length; i++) {
+				if (data[i].type === type) {
+					return i;					
+				}												
+			}
+			return -1;
+		}
+		
+		loadScript("data/SoPQuestionDataTEMP.json", gameSetup);	
+		
+		
+		function displayContent() {
+			var headerDiv = document.querySelector("#headerContent");
+			var mainDiv = document.querySelector("#mainContent");
+			var answerDiv = document.querySelector("#answerContent");
+			
+			var e, h, t, a;
+			
+			var curGameContent = gameObject.gameContent.shift();
+			
+			if (curGameContent.type == "newEra") { updateGraph(); }
+							
+			if (curGameContent.type == "newEra" || curGameContent.type == "setup") {
+				t = document.createTextNode(curGameContent.hook);
+				eDisplay.appendChild(t);
+				headerDiv.classList.add("fadeInAnimation");				
+			} else {
+				h = document.createTextNode(curGameContent.hook);
+				hDisplay.appendChild(h);
+				headerDiv.classList.add("fadeInAnimation");
+			}
+			
+			if (curGameContent.text != "") {
+				t = document.createTextNode(curGameContent.text);
+				tDisplay.appendChild(t);
+				mainDiv.classList.add("fadeInAnimation");
+			//	mainDiv.style.animationDelay = "1s";
+			}
+			
+			if (curGameContent.answers) {
+				for(var i=0; i<curGameContent.answers.length; i++) {
+
+					(function(i) {
+						var para = createPElement(curGameContent.answers[i].answer, 0, "0.4em");
+						para.answerIndex = i;									
+						para.addEventListener("click", function() {
+							var answerChosen = curGameContent.answers[para.answerIndex];
+							resolveScore(answerChosen);
+							if (curGameContent.type != "setup" && curGameContent.type != "newEra") { updateGraph(); }
+							requestAnimationFrame(frame);
+							displayContentComplete = false;
+							
+							resetAnimation(headerDiv,mainDiv,answerDiv);	
+					
+						});
+						aDisplay.appendChild(para);						
+					})(i)
+					answerDiv.classList.add("fadeInAnimation");
+					//answerDiv.style.animationDelay = "1.5s";
+				}
+				
+			} else {
+				var para = createPElement("Continue...",0,0);
+				
+				para.addEventListener("click", function() {						
+					resolveScore(curGameContent);
+					requestAnimationFrame(frame);
+					displayContentComplete = false;
+					
+					resetAnimation(headerDiv,mainDiv,answerDiv);
+					
+				})
+				aDisplay.appendChild(para);
+				answerDiv.classList.add("fadeInAnimation");
+				//answerDiv.style.animationDelay = "1.5s";
+			}
+				
+			displayContentComplete = true;			
+		}
+		
+		function resetAnimation(...args) {
+		
+			for (var i=0; i<args.length; i++) {
+				args[i].classList.remove("fadeInAnimation");
+				args[i].offsetWidth = args[i].offsetWidth;
+				args[i].classList.add("fadeInAnimation");
+			}
+			
+		
+		}
+	
+		function resolveScore(answerObj) {
+		
+			//Could be impoved with better json structure
+			if (answerObj.pop % 1 != 0) {
+				gameObject.gameScore.pop *= answerObj.pop;
+			} else {
+				gameObject.gameScore.pop += answerObj.pop;
+			}
+
+			if (answerObj.econ % 1 != 0) {
+				gameObject.gameScore.econ *= answerObj.econ;
+			} else {
+				gameObject.gameScore.econ += answerObj.econ;
+			}
+
+			if (answerObj.rep % 1 != 0) {
+				gameObject.gameScore.rep *= answerObj.rep;
+			} else {
+				gameObject.gameScore.rep += answerObj.rep;
+			}
+
+			if (answerObj.sol % 1 != 0) {
+				gameObject.gameScore.sol *= answerObj.sol;
+			} else {
+				gameObject.gameScore.sol += answerObj.sol;
+			}		
+
+					
+		}
+		
+		
+		function resetCanvas() {
+			var qDisplay = document.querySelectorAll(".question-canvas");
+			for (i = 0; i < qDisplay.length; i++) {
+				qDisplay[i].textContent = "";
+				//qDisplay[i].style.opacity = 0;
+			}	
+			if (graph) {graph.render();	}
+		}
+		
+		
+		
+		function createPElement(s, mt, mb) {
+	
+			var para = document.createElement("p");
+			var a = document.createTextNode(s);
+			
+			para.appendChild(a);
+			para.style.cursor = "default";
+			//para.style.pointerEvents = "none";
+			
+			if (mt != undefined) { para.style.marginTop = mt; } 
+			if (mb != undefined) { para.style.marginBottom = mb; }
+	
+			return para;
+		}
+		
+		function updateGraph() {
+
+			scoreData.pop[gameObject.contentCount].y = gameObject.gameScore.pop;
+			scoreData.econ[gameObject.contentCount].y = gameObject.gameScore.econ;
+			scoreData.rep[gameObject.contentCount].y = gameObject.gameScore.rep;
+			scoreData.sol[gameObject.contentCount].y = gameObject.gameScore.sol;
+			
+			
+			gameObject.contentCount++;
+			
+			graph.update();
+
+
 		}
 
-		function clearGraph() {
-		  $('#chart_container').html(
-			'<div id="chart"></div><div id="legend_container"></div><div id="slider"></div><div id="x_axis"></div>'
-		  );	
-		  
-		  scoreData = {"pop":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "rep":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "econ":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}], "sol":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null}]};
-		}
 	
 		function drawGraph() {
 			
-			var w = document.querySelector("#chart").width;
-			var h = document.querySelector("#chart").height;
+			$('#chart_container').html(
+			'<div id="chart"></div><div id="legend_container"></div><div id="slider"></div><div id="x_axis"></div>'
+			);	
+
+			scoreData = {
+				"pop":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
+				"rep":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
+				"econ":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}], 
+				"sol":[{x:0, y:null},{x:1, y:null},{x:2, y:null},{x:3, y:null},{x:4, y:null},{x:5, y:null},{x:6, y:null},{x:7, y:null},{x:8, y:null},{x:9, y:null},{x:10, y:null},{x:11, y:null},{x:12, y:null},{x:13, y:null},{x:14, y:null},{x:15, y:null},{x:16, y:null},{x:17, y:null},{x:18, y:null},{x:19, y:null},{x:20, y:null},{x:21, y:null},{x:22, y:null},{x:23, y:null},{x:24, y:null},{x:25, y:null},{x:26, y:null},{x:27, y:null},{x:28, y:null},{x:29, y:null},{x:30, y:null}]
+			};
+			
 			
 			graph = new Rickshaw.Graph({
 				element: document.querySelector("#chart"),
-				width: w,
-				height: h,
 				renderer: 'lineplot',
 				series: [
 				{
@@ -696,25 +456,35 @@
 				var map = {
 					0: '1910',
 					1: '',
-					2: '1919',
-					3: '',
-					4: '1937',
+					2: '',
+					3: '1919',
+					4: '',
 					5: '',
-					6: '1946',
+					6: '1937',
 					7: '',
-					8: '1956',
-					9: '',
-					10: '1965',
+					8: '',
+					9: '1946',
+					10: '',
 					11: '',
-					12: '1976',
+					12: '1956',
 					13: '',
-					14: '1986',
-					15: '',
-					16: '1996',
+					14: '',
+					15: '1965',
+					16: '',
 					17: '',
-					18: '2005',
+					18: '1976',
 					19: '',
-					20: 'Present'
+					20: '',
+					21: '1986',
+					22: '',
+					23: '',
+					24: '1996',
+					25: '',
+					26: '',
+					27: '2005',
+					28: '',
+					29: '',
+					30: 'Present',
 				};
 
 				return map[n];
@@ -740,19 +510,6 @@
 			x_axis.render();
 	
 		}
-		
-		function startGame() {
-			
-			score = {"era":0,"econ":0,"rep":0,"sol":0,"pop":0,"numQuestions":0};						
-			
-			clearGraph();
-			resetCanvas();
-			drawGraph();
-
-			loadScript("data/SoPQuestionData.json", gameSetup);						
-		}
-		
-		startGame();			
 		
 	</script>
 
