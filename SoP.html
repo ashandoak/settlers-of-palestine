@@ -78,11 +78,24 @@
 			white-space: pre-line; /*Not sure why this works... Need to check compatibility with all browsers/platforms http://stackoverflow.com/questions/9980416/how-can-i-insert-new-line-carriage-returns-into-an-element-textcontent*/		
 		}
 		
-		.detail_swatch {
-			float:right; 
-			width: 10px; 
-			height: 10px; 
-			margin: 2.5px 0 0 95px 
+		.swatch {
+			display: inline-block;
+			width: 10px;
+			height: 10px;
+			//margin: 0 4px 0 0;
+		}
+		.label {
+			display: inline-block;
+			color: black;
+			width:100px;
+			text-align: left;
+		}
+		.line {
+			display: inline-block;
+			//margin: 0 0 0 2em;
+		}
+		#legend {
+			text-align: center;
 		}
 				
 	</style>
@@ -109,7 +122,8 @@
 			</div>
 		
 			<div class="row">
-				<div class="col-xs-4 pull-right well well-sm main-group" id="answerContent">
+				<!--<div class="pull-right well well-sm main-group" id="answerContent">-->
+				<div class="col-xs-5 pull-right well well-sm main-group" id="answerContent">
 					<div class="text-right question-canvas" id="answer-canvas"></div> 
 				</div>
 			</div>
@@ -117,7 +131,8 @@
 			<div class="well well-lg" id="chart_container">
 				<div id="chart"></div>
 				<div id="x_axis"></div>
-			</div>	
+				<div id="legend"></div>
+			</div>
 		
 		</div>
 	
@@ -126,9 +141,9 @@
 
 	<script language="JavaScript">
 	
-			var score = {};
-			var QUESTIONS_PER_ERA = 2;
-			var QUESTIONS_PER_GAME = 20;
+		var score = {};
+		var QUESTIONS_PER_ERA = 2;
+		var QUESTIONS_PER_GAME = 20;
 		var graph;
 		
 		var scoreData = { "pop": [], "rep": [], "econ": [], "sol": []};
@@ -184,8 +199,8 @@
 			var para = createPElement("Click to replay...",0,0);
 			
 			para.addEventListener("click", function() {
-				loadScript("data/SoPQuestionDataTEMP.json", gameSetup);
 				displayContentComplete = false;
+				loadScript("data/SoPQuestionData.json", gameSetup);				
 			});
 			aDisplay.appendChild(para);	
 
@@ -290,10 +305,15 @@
 			}
 			
 			if (curGameContent.answers) {
+				var divLength = 50;
+				
 				for(var i=0; i<curGameContent.answers.length; i++) {
-
+					
+					var htmlLength;
+					
 					(function(i) {
 						var para = createPElement(curGameContent.answers[i].answer, 0, "0.4em");
+						htmlLength = getWidthOfText(curGameContent.answers[i].answer);
 						para.answerIndex = i;									
 						para.addEventListener("click", function() {
 							var answerChosen = curGameContent.answers[para.answerIndex];
@@ -305,8 +325,14 @@
 							resetAnimation(headerDiv,mainDiv,answerDiv);	
 					
 						});
+						/*if (htmlLength/window.innerWidth*100 < divLength) {
+							divLength = htmlLength/window.innerWidth*100;							
+						}
+						var s = "width:"+divLength.toString()+"%";
+						document.getElementById("answerContent").setAttribute("style",s);*/
 						aDisplay.appendChild(para);						
 					})(i)
+					
 					answerDiv.classList.add("fadeInAnimation");
 					//answerDiv.style.animationDelay = "1.5s";
 				}
@@ -330,6 +356,21 @@
 			displayContentComplete = true;			
 		}
 		
+		function getWidthOfText(txt, fontname, fontsize){
+			// Create a dummy canvas (render invisible with css)
+			var c=document.createElement('canvas');
+			// Get the context of the dummy canvas
+			var ctx=c.getContext('2d');
+			// Set the context.font to the font that you are using
+			ctx.font = fontsize + 'px' + fontname;
+			// Measure the string 
+			// !!! <CRUCIAL>  !!!
+			var length = ctx.measureText(txt).width;
+			// !!! </CRUCIAL> !!!
+			// Return width
+			return length;
+		}
+		
 		function resetAnimation(...args) {
 		
 			for (var i=0; i<args.length; i++) {
@@ -343,32 +384,31 @@
 	
 		function resolveScore(answerObj) {
 		
-			//Could be impoved with better json structure
-			if (answerObj.pop % 1 != 0) {
-				gameObject.gameScore.pop *= answerObj.pop;
-			} else {
-				gameObject.gameScore.pop += answerObj.pop;
+			var indicies = ["pop", "econ", "rep", "sol"];
+			
+			for (var i=0; i<indicies.length; i++) {
+				//Could be impoved with better json structure
+				if (answerObj[indicies[i]] % 1 != 0) {
+					gameObject.gameScore[indicies[i]] *= Math.round(answerObj[indicies[i]]);
+				} else {
+					gameObject.gameScore[indicies[i]] += Math.round(answerObj[indicies[i]]);
+				}
+				
+				if (i == "rep" || i == "sol") {
+					if (gameObject.gameScore[indicies[i]] > 100) { gameObject.gameScore[indicies[i]] = 100; }
+					if (gameObject.gameScore[indicies[i]] < 0) { gameObject.gameScore[indicies[i]] = 0; }					
+				}
+			}				
+		}
+		
+		function checkScore() {
+		
+			if (gameObject.gameScore.pop <= 0 || gameObject.gameScore.sol <= 0) {
+				
+				displayGameOver();
+			
 			}
-
-			if (answerObj.econ % 1 != 0) {
-				gameObject.gameScore.econ *= answerObj.econ;
-			} else {
-				gameObject.gameScore.econ += answerObj.econ;
-			}
-
-			if (answerObj.rep % 1 != 0) {
-				gameObject.gameScore.rep *= answerObj.rep;
-			} else {
-				gameObject.gameScore.rep += answerObj.rep;
-			}
-
-			if (answerObj.sol % 1 != 0) {
-				gameObject.gameScore.sol *= answerObj.sol;
-			} else {
-				gameObject.gameScore.sol += answerObj.sol;
-			}		
-
-					
+		
 		}
 		
 		
@@ -408,6 +448,8 @@
 			
 			gameObject.contentCount++;
 			
+			drawLegend();
+			
 			graph.update();
 
 
@@ -417,7 +459,7 @@
 		function drawGraph() {
 			
 			$('#chart_container').html(
-			'<div id="chart"></div><div id="legend_container"></div><div id="slider"></div><div id="x_axis"></div>'
+			'<div id="chart"></div><div id="x_axis"></div><div id="legend"></div>'
 			);	
 
 			scoreData = {
@@ -495,9 +537,11 @@
 				orientation: 'bottom',
 				element: document.getElementById('x_axis'),
 				tickFormat: format				
-			} );			
+			} );		
 
-			var hoverDetail = new Rickshaw.Graph.HoverDetail({
+			x_axis.render();
+
+			/*var hoverDetail = new Rickshaw.Graph.HoverDetail({
 				graph: graph,
 				formatter: function(series, x, y) {
 					var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
@@ -505,10 +549,60 @@
 					var content = swatch + data;
 					return content;
 				}
-			});
-					
-			x_axis.render();
+			});*/										
 	
+		}
+		
+		function drawLegend() {
+		
+			var legend = document.querySelector('#legend');
+
+			var Hover = Rickshaw.Class.create(Rickshaw.Graph.HoverDetail, {
+
+				render: function(args) {
+
+					legend.innerHTML = "";
+
+					args.detail.sort(function(a, b) { return a.order - b.order }).forEach( function(d) {
+
+						var line = document.createElement('div');
+						line.className = 'line';
+
+						var swatch = document.createElement('div');
+						swatch.className = 'swatch';
+						swatch.style.backgroundColor = d.series.color;
+
+						var label = document.createElement('div');
+						label.className = 'label';
+						if (d.value.y != null) {
+							label.innerHTML = d.name + ": " + d.value.y;
+						} else {
+							label.innerHTML = d.name + ": " + d.series.data[gameObject.contentCount-1].y;
+						}
+
+						line.appendChild(swatch);
+						line.appendChild(label);
+
+						legend.appendChild(line);
+
+						var dot = document.createElement('div');
+						dot.className = 'dot';
+						dot.style.top = graph.y(d.value.y0 + d.value.y) + 'px';
+						dot.style.borderColor = d.series.color;
+						
+						if (d.value.y != null) {
+							this.element.appendChild(dot);
+						}
+
+						dot.className = 'dot active';
+
+						this.show();
+
+					}, this );
+				}
+			});
+
+			var hover = new Hover( { graph: graph } ); 
 		}
 		
 	</script>
