@@ -26,7 +26,7 @@
 		}
 				
 		#headerContent {
-			background-color: #0992b2;
+			background-color: #0CC5f0;
 			border-radius: 20px;	
 			margin-bottom: 1em;
 			//opacity: 0;
@@ -163,6 +163,7 @@
 			
 		var counter = 1;
 		var displayContentComplete = false;
+		var gameOver = false;
 		
 		
 		$(window).on('resize', function(){
@@ -176,20 +177,25 @@
 		function frame() {
 			if (!displayContentComplete) {
 				resetCanvas();
-				
+
 				if (gameObject.gameContent.length > 0) {					
 					displayContent();
+					requestAnimationFrame(frame);
 					
 				} else {
 					displayGameOver();
 				}
+			} else if (gameOver) {
+				displayGameOver();
 			}
-			requestAnimationFrame(frame);
+						
 		}
 
 
 
 		function displayGameOver() {
+			
+			resetCanvas();
 			
 			var h = document.createTextNode("Game Over");
 			var t = document.createTextNode("Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...");					
@@ -200,6 +206,7 @@
 			
 			para.addEventListener("click", function() {
 				displayContentComplete = false;
+				gameOver = false;
 				loadScript("data/SoPQuestionData.json", gameSetup);				
 			});
 			aDisplay.appendChild(para);	
@@ -285,9 +292,11 @@
 			
 			var curGameContent = gameObject.gameContent.shift();
 			
-			if (curGameContent.type == "newEra") { updateGraph(); }
-							
-			if (curGameContent.type == "newEra" || curGameContent.type == "setup") {
+			//Hook text			
+			if (curGameContent.type == "newEra") { 
+				if (curGameContent.hook != '"Welcome to Palestine!"') { //hack solution
+					updateGraph();
+				}
 				t = document.createTextNode(curGameContent.hook);
 				eDisplay.appendChild(t);
 				headerDiv.classList.add("fadeInAnimation");				
@@ -297,6 +306,7 @@
 				headerDiv.classList.add("fadeInAnimation");
 			}
 			
+			//Main text
 			if (curGameContent.text != "") {
 				t = document.createTextNode(curGameContent.text);
 				tDisplay.appendChild(t);
@@ -318,10 +328,13 @@
 						para.addEventListener("click", function() {
 							var answerChosen = curGameContent.answers[para.answerIndex];
 							resolveScore(answerChosen);
+							if (curGameContent.type == "setup") {
+								gameObject.gameScore[answerChosen.trig] = answerChosen.answer;							
+							}
 							if (curGameContent.type != "setup" && curGameContent.type != "newEra") { updateGraph(); }
-							requestAnimationFrame(frame);
-							displayContentComplete = false;
-							
+							//requestAnimationFrame(frame);
+							//displayContentComplete = false;
+							displayReply(curGameContent,para.answerIndex);
 							resetAnimation(headerDiv,mainDiv,answerDiv);	
 					
 						});
@@ -354,6 +367,43 @@
 			}
 				
 			displayContentComplete = true;			
+		}
+		
+		function displayReply(gc, i) {
+			resetCanvas();
+			
+			var replyContent = gc;
+			var index = i;
+				
+			var headerDiv = document.querySelector("#headerContent");
+			var mainDiv = document.querySelector("#mainContent");
+			var answerDiv = document.querySelector("#answerContent");
+		
+			var e, h, t, a;
+			
+			h = document.createTextNode(replyContent.hook);
+			hDisplay.appendChild(h);
+			headerDiv.classList.add("fadeInAnimation");
+			
+			if (replyContent.answers[index].reply != "") {
+				t = document.createTextNode(replyContent.answers[index].reply);
+				tDisplay.appendChild(t);
+				mainDiv.classList.add("fadeInAnimation");
+			}
+			
+			var para = createPElement("Continue...",0,0);
+				
+			para.addEventListener("click", function() {						
+				requestAnimationFrame(frame);
+				displayContentComplete = false;
+				
+				resetAnimation(headerDiv,mainDiv,answerDiv);
+				
+			})
+			
+			aDisplay.appendChild(para);
+			answerDiv.classList.add("fadeInAnimation");
+			//answerDiv.style.animationDelay = "1.5s";
 		}
 		
 		function getWidthOfText(txt, fontname, fontsize){
@@ -389,23 +439,32 @@
 			for (var i=0; i<indicies.length; i++) {
 				//Could be impoved with better json structure
 				if (answerObj[indicies[i]] % 1 != 0) {
-					gameObject.gameScore[indicies[i]] *= Math.round(answerObj[indicies[i]]);
+					gameObject.gameScore[indicies[i]] *= answerObj[indicies[i]];
 				} else {
-					gameObject.gameScore[indicies[i]] += Math.round(answerObj[indicies[i]]);
+					gameObject.gameScore[indicies[i]] += answerObj[indicies[i]];
 				}
+
+				if (gameObject.gameScore.ideology && gameObject.gameScore.ideology === answerObj.answerIdeology) {
+					if (answerObj.answerBonusValue % 1 != 0) {
+						gameObject.gameScore[answerObj.answerBonusVariable] *= answerObj.answerBonusValue;
+					} else {
+						gameObject.gameScore[answerObj.answerBonusVariable] += answerObj.answerBonusValue;
+					}
+				} 
 				
-				if (i == "rep" || i == "sol") {
+				if (indicies[i] == "rep" || indicies[i] == "sol") {
 					if (gameObject.gameScore[indicies[i]] > 100) { gameObject.gameScore[indicies[i]] = 100; }
 					if (gameObject.gameScore[indicies[i]] < 0) { gameObject.gameScore[indicies[i]] = 0; }					
 				}
-			}				
+			}	
+			checkScore();
 		}
 		
 		function checkScore() {
 		
 			if (gameObject.gameScore.pop <= 0 || gameObject.gameScore.sol <= 0) {
 				
-				displayGameOver();
+				gameOver = true;
 			
 			}
 		
