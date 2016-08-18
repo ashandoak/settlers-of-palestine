@@ -1,17 +1,17 @@
 /* Some code derived from examples found on http://code.shutterstock.com/rickshaw/
 */
 
-function updateGraph() {
+function updateGraph(go) {
 
-	scoreData.pop[gameObject.contentCount].y = gameObject.gameScore.pop;
-	scoreData.econ[gameObject.contentCount].y = gameObject.gameScore.econ;
-	scoreData.rep[gameObject.contentCount].y = gameObject.gameScore.rep;
-	scoreData.sol[gameObject.contentCount].y = gameObject.gameScore.sol;
+	scoreData.pop[go.contentCount].y = go.gameScore.pop;
+	scoreData.econ[go.contentCount].y = go.gameScore.econ;
+	scoreData.rep[go.contentCount].y = go.gameScore.rep;
+	scoreData.sol[go.contentCount].y = go.gameScore.sol;
 	
 	
-	gameObject.contentCount++;
+	go.contentCount++;
 	
-	drawLegend();
+	drawLegend(go);
 	
 	graph.update();
 
@@ -105,7 +105,7 @@ function drawGraph() {
 
 }
 
-function drawLegend() {
+function drawLegend(go) {
 
 	var legend = document.querySelector('#legend');
 
@@ -129,7 +129,7 @@ function drawLegend() {
 				if (d.value.y != null) {
 					label.innerHTML = d.name + ": " + d.value.y;
 				} else {
-					label.innerHTML = d.name + ": " + d.series.data[gameObject.contentCount-1].y;
+					label.innerHTML = d.name + ": " + d.series.data[go.contentCount-1].y;
 				}
 
 				line.appendChild(swatch);
