@@ -1,5 +1,6 @@
 var QUESTIONS_PER_ERA = 2;
 var QUESTIONS_PER_GAME = 20;
+var COUNTER_VOTE_CHANCE = 0.99;
 var graph;
 
 var gameObject = {};
@@ -106,6 +107,7 @@ function displayContent() {
 	var e, h, t, a;
 	
 	var curGameContent = gameObject.gameContent.shift();
+
 	
 	//Hook text			
 	if (curGameContent.type === "newEra") { 
@@ -138,13 +140,20 @@ function displayContent() {
 				var para = createPElement(curGameContent.answers[i].answer, 0, "0.4em");
 				para.answerIndex = i;									
 				para.addEventListener("click", function() {
-					var answerChosen = curGameContent.answers[para.answerIndex];
+					var answerChosen;
+					if (kibbutzVotesAgainst()) {
+						answerChosen = findNewAnswer(curGameContent.answers, para.answerIndex);
+					} else {
+						answerChosen = curGameContent.answers[para.answerIndex];
+					}
 					resolveScore(answerChosen);
 					if (curGameContent.type === "setup") {
 						gameObject.gameScore[answerChosen.trig] = answerChosen.answer;							
 					}
-					if (curGameContent.type != "setup" && curGameContent.type != "newEra") { updateGraph(); }
-					displayReply(curGameContent,para.answerIndex);
+					if (curGameContent.type != "setup" && curGameContent.type != "newEra") { 
+						updateGraph(); 
+					}
+					displayReply(curGameContent,answerChosen);
 					resetAnimation(headerDiv,mainDiv,answerDiv);	
 			
 				});
@@ -175,11 +184,37 @@ function displayContent() {
 	displayContentComplete = true;			
 }
 
-function displayReply(gc, i) {
+function kibbutzVotesAgainst() {
+	if (gameObject.gameScore.sol <= 50) {
+		if (Math.random() < COUNTER_VOTE_CHANCE) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function findNewAnswer(answers, indexChosen) {
+	for (var i = 0; i < answers.length; i++) {
+		if (i != indexChosen && answers[i].answerIdeology === gameObject.gameScore.ideology) {
+			var reply = answers[i].reply;
+			answers[i].reply = "Unfortunately, the kibbutz voted against you. The kibbutz chose:\n\n" + answers[i].answer;
+			return answers[i];
+		}
+	}
+	var newIndex = parseInt(Math.random() * answers.length);
+	while (newIndex === indexChosen) {
+		newIndex = int(Math.random() * answers.length);
+	}
+	var reply = answers[newIndex].reply;
+	answers[newIndex].reply = "Unfortunately, the kibbutz voted against you. The kibbutz chose:\n\n" + answers[newIndex].answer;
+	return answers[newIndex];
+}
+
+function displayReply(gc, ans) {
 	resetCanvas();
 	
 	var replyContent = gc;
-	var index = i;
+	var answer = ans;
 		
 	var headerDiv = document.querySelector("#headerContent");
 	var mainDiv = document.querySelector("#mainContent");
@@ -191,8 +226,8 @@ function displayReply(gc, i) {
 	hDisplay.appendChild(h);
 	headerDiv.classList.add("fadeInAnimation");
 	
-	if (replyContent.answers[index].reply != "") {
-		t = document.createTextNode(replyContent.answers[index].reply);
+	if (answer.reply != "") {
+		t = document.createTextNode(answer.reply);
 		tDisplay.appendChild(t);
 		mainDiv.classList.add("fadeInAnimation");
 	}
@@ -213,12 +248,12 @@ function displayReply(gc, i) {
 }
 
 
-function resetAnimation(...args) {
+function resetAnimation() {
 
-	for (var i=0; i<args.length; i++) {
-		args[i].classList.remove("fadeInAnimation");
-		args[i].offsetWidth = args[i].offsetWidth;
-		args[i].classList.add("fadeInAnimation");
+	for (var i=0; i<arguments.length; i++) {
+		arguments[i].classList.remove("fadeInAnimation");
+		arguments[i].offsetWidth = arguments[i].offsetWidth;
+		arguments[i].classList.add("fadeInAnimation");
 	}
 }
 
@@ -229,16 +264,16 @@ function resolveScore(answerObj) {
 	for (var i=0; i<indicies.length; i++) {
 		//Could be impoved with better json structure
 		if (answerObj[indicies[i]] % 1 != 0) {
-			gameObject.gameScore[indicies[i]] *= answerObj[indicies[i]];
+			gameObject.gameScore[indicies[i]] *= parseInt(answerObj[indicies[i]]);
 		} else {
-			gameObject.gameScore[indicies[i]] += answerObj[indicies[i]];
+			gameObject.gameScore[indicies[i]] += parseInt(answerObj[indicies[i]]);
 		}
 
 		if (gameObject.gameScore.ideology && gameObject.gameScore.ideology === answerObj.answerIdeology) {
 			if (answerObj.answerBonusValue % 1 != 0) {
-				gameObject.gameScore[answerObj.answerBonusVariable] *= answerObj.answerBonusValue;
+				gameObject.gameScore[answerObj.answerBonusVariable] *= parseInt(answerObj.answerBonusValue);
 			} else {
-				gameObject.gameScore[answerObj.answerBonusVariable] += answerObj.answerBonusValue;
+				gameObject.gameScore[answerObj.answerBonusVariable] += parseInt(answerObj.answerBonusValue);
 			}
 		} 
 		
