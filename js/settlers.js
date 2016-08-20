@@ -1,6 +1,6 @@
 var QUESTIONS_PER_ERA = 2;
 var QUESTIONS_PER_GAME = 20;
-var COUNTER_VOTE_CHANCE = 0.99;
+var COUNTER_VOTE_CHANCE = 0.25;
 var graph;
 
 var gameObject = {};
@@ -13,6 +13,9 @@ var aDisplay = document.querySelector("#answer-canvas");
 var displayContentComplete = false;
 var gameOver = false;
 
+//DEBUG
+DEBUG = false;
+MAX_DEBUG_QUESTIONS = 2;
 
 $(window).on('resize', function(){
 	graph.configure({
@@ -52,7 +55,7 @@ function startGame() {
 }
 
 function frame() {
-	if (!displayContentComplete) {
+	if (!displayContentComplete && !gameOver) {
 		resetCanvas();
 
 		if (gameObject.gameContent.length > 0) {					
@@ -62,25 +65,39 @@ function frame() {
 		} else {
 			displayGameOver();
 		}
-	} else if (gameOver) {
+	} /*else if (gameOver) {
 		displayGameOver();
-	}
-				
+	}*/			
 }
 
 function generateGameContent(json) {
 
 	var arr = [];
+	
+	if (DEBUG) {
+		for (var k = 0; k < json.length; k++) {
+			arr.push(json[k].newEra);
+			if (MAX_DEBUG_QUESTIONS > 0) {
+				for (var l = 0; l < MAX_DEBUG_QUESTIONS; l++) {
+					arr.push(json[k].questions[l]);
+				}
+			} else {
+				for (var l = 0; l < json[k].questions.length; l++) {
+					arr.push(json[k].questions[l]);
+				}
+			}
+		}		
+	} else {
+		//Setup 
+		arr.push(json[0].newEra);
+		for (var j = 0; j < json[0].questions.length; j++) {
+			arr.push(json[0].questions[j]);
+		}
+		
+		for (var i=1; i<json.length; i++) {
 			
-	for (var i=0; i<json.length; i++) {
-		
-		arr.push(json[i].newEra);
-		var	questionArray = json[i].questions;	
-		
-		if (json[i].type === "setup") {
-			arr.push(questionArray[0]);
-			arr.push(questionArray[1]);
-		} else {						
+			arr.push(json[i].newEra);
+			var	questionArray = json[i].questions;				
 			var bossQuestionIndex = getIndex(questionArray, "B");
 							
 			if (bossQuestionIndex > 0) {					
@@ -90,7 +107,7 @@ function generateGameContent(json) {
 			} else {
 				for (var j=0; j<QUESTIONS_PER_ERA; j++) {
 					arr.push(questionArray.splice(Math.floor(questionArray.length*Math.random()),1)[0]);
-				}
+				}				
 			}				
 		}
 	}
@@ -112,7 +129,7 @@ function displayContent() {
 	//Hook text			
 	if (curGameContent.type === "newEra") { 
 		if (curGameContent.hook != '"Welcome to Palestine!"') { //temporary hack solution
-			updateGraph();
+			//updateGraph();
 		}
 		t = document.createTextNode(curGameContent.hook);
 		eDisplay.appendChild(t);
@@ -141,7 +158,7 @@ function displayContent() {
 				para.answerIndex = i;									
 				para.addEventListener("click", function() {
 					var answerChosen;
-					if (kibbutzVotesAgainst()) {
+					if (curGameContent.type != "setup" && kibbutzVotesAgainst()) {
 						answerChosen = findNewAnswer(curGameContent.answers, para.answerIndex);
 					} else {
 						answerChosen = curGameContent.answers[para.answerIndex];
@@ -158,7 +175,7 @@ function displayContent() {
 			
 				});
 
-				aDisplay.appendChild(para);						
+				aDisplay.appendChild(para);	
 			})(i)
 			
 			answerDiv.classList.add("fadeInAnimation");
@@ -172,7 +189,9 @@ function displayContent() {
 			resolveScore(curGameContent);
 			requestAnimationFrame(frame);
 			displayContentComplete = false;
-			
+			if (curGameContent.type != "setup" && curGameContent.hook != '"Welcome to Palestine!"') {
+				updateGraph();
+			}
 			resetAnimation(headerDiv,mainDiv,answerDiv);
 			
 		})
@@ -185,7 +204,7 @@ function displayContent() {
 }
 
 function kibbutzVotesAgainst() {
-	if (gameObject.gameScore.sol <= 50) {
+	if (gameObject.gameScore.sol < 50) {
 		if (Math.random() < COUNTER_VOTE_CHANCE) {
 			return true;
 		}
@@ -203,7 +222,7 @@ function findNewAnswer(answers, indexChosen) {
 	}
 	var newIndex = parseInt(Math.random() * answers.length);
 	while (newIndex === indexChosen) {
-		newIndex = int(Math.random() * answers.length);
+		newIndex = parseInt(Math.random() * answers.length);
 	}
 	var reply = answers[newIndex].reply;
 	answers[newIndex].reply = "Unfortunately, the kibbutz voted against you. The kibbutz chose:\n\n" + answers[newIndex].answer;
@@ -211,40 +230,42 @@ function findNewAnswer(answers, indexChosen) {
 }
 
 function displayReply(gc, ans) {
-	resetCanvas();
+	if (!gameOver) {
+		resetCanvas();
 	
-	var replyContent = gc;
-	var answer = ans;
-		
-	var headerDiv = document.querySelector("#headerContent");
-	var mainDiv = document.querySelector("#mainContent");
-	var answerDiv = document.querySelector("#answerContent");
+		var replyContent = gc;
+		var answer = ans;
+			
+		var headerDiv = document.querySelector("#headerContent");
+		var mainDiv = document.querySelector("#mainContent");
+		var answerDiv = document.querySelector("#answerContent");
 
-	var e, h, t, a;
-	
-	h = document.createTextNode(replyContent.hook);
-	hDisplay.appendChild(h);
-	headerDiv.classList.add("fadeInAnimation");
-	
-	if (answer.reply != "") {
-		t = document.createTextNode(answer.reply);
-		tDisplay.appendChild(t);
-		mainDiv.classList.add("fadeInAnimation");
+		var e, h, t, a;
+		
+		h = document.createTextNode(replyContent.hook);
+		hDisplay.appendChild(h);
+		headerDiv.classList.add("fadeInAnimation");
+		
+		if (answer.reply != "") {
+			t = document.createTextNode(answer.reply);
+			tDisplay.appendChild(t);
+			mainDiv.classList.add("fadeInAnimation");
+		}
+		
+		var para = createPElement("Continue...",0,0);
+			
+		para.addEventListener("click", function() {						
+			requestAnimationFrame(frame);
+			displayContentComplete = false;
+			
+			resetAnimation(headerDiv,mainDiv,answerDiv);
+			
+		})
+		
+		aDisplay.appendChild(para);
+		answerDiv.classList.add("fadeInAnimation");
+		//answerDiv.style.animationDelay = "1.5s";
 	}
-	
-	var para = createPElement("Continue...",0,0);
-		
-	para.addEventListener("click", function() {						
-		requestAnimationFrame(frame);
-		displayContentComplete = false;
-		
-		resetAnimation(headerDiv,mainDiv,answerDiv);
-		
-	})
-	
-	aDisplay.appendChild(para);
-	answerDiv.classList.add("fadeInAnimation");
-	//answerDiv.style.animationDelay = "1.5s";
 }
 
 
@@ -264,43 +285,59 @@ function resolveScore(answerObj) {
 	for (var i=0; i<indicies.length; i++) {
 		//Could be impoved with better json structure
 		if (answerObj[indicies[i]] % 1 != 0) {
-			gameObject.gameScore[indicies[i]] *= parseInt(answerObj[indicies[i]]);
+			gameObject.gameScore[indicies[i]] = parseInt(gameObject.gameScore[indicies[i]] * answerObj[indicies[i]]);
 		} else {
-			gameObject.gameScore[indicies[i]] += parseInt(answerObj[indicies[i]]);
+			gameObject.gameScore[indicies[i]] += answerObj[indicies[i]];
 		}
-
-		if (gameObject.gameScore.ideology && gameObject.gameScore.ideology === answerObj.answerIdeology) {
-			if (answerObj.answerBonusValue % 1 != 0) {
-				gameObject.gameScore[answerObj.answerBonusVariable] *= parseInt(answerObj.answerBonusValue);
-			} else {
-				gameObject.gameScore[answerObj.answerBonusVariable] += parseInt(answerObj.answerBonusValue);
-			}
-		} 
 		
 		if (indicies[i] === "rep" || indicies[i] === "sol") {
 			if (gameObject.gameScore[indicies[i]] > 100) { gameObject.gameScore[indicies[i]] = 100; }
 			if (gameObject.gameScore[indicies[i]] < 0) { gameObject.gameScore[indicies[i]] = 0; }					
 		}
 	}	
+	
+	if (gameObject.gameScore.ideology && gameObject.gameScore.ideology === answerObj.answerIdeology) {
+		if (answerObj.answerBonusValue % 1 != 0) {
+			gameObject.gameScore[answerObj.answerBonusVariable] = parseInt(gameObject.gameScore[answerObj.answerBonusVariable] * answerObj.answerBonusValue);
+		} else {
+			gameObject.gameScore[answerObj.answerBonusVariable] += answerObj.answerBonusValue;
+		}
+	}
+	
 	checkScore();
 }
 
 function checkScore() {
 
-	if (gameObject.gameScore.pop <= 0 || gameObject.gameScore.sol <= 0) {
-		
-		gameOver = true;
-	
+	if (gameObject.gameScore.pop <= 0) {
+		displayGameOver("pop");	
+	} else if (gameObject.gameScore.sol <= 0) {
+		displayGameOver("sol");
+	} else if (gameObject.gameScore.econ <= -20) {
+		displayGameOver("econ");
 	}
 
 }
 
-function displayGameOver() {
+function displayGameOver(str) {
 	
+	gameOver = true;
 	resetCanvas();
+	var gameOverText;
+	
+	if (str === "pop") {
+		gameOverText = "The last member leaves the kibbutz. Your settlement becomes a ghost town.";
+	} else if (str === "sol") {
+		gameOverText = "Unfortunately, all your fellow kibbutzniks lose faith in each other and your greater mission. They abandon the kibbutz and go their own ways.";
+	} else if (str === "econ") {
+		gameOverText = "Your kibbutz is bankrupt. The bank liquidates your assets and all your members must leave.";
+	} else {
+		gameOverText = "Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...";
+	}
+	
 	
 	var h = document.createTextNode("Game Over");
-	var t = document.createTextNode("Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...");					
+	var t = document.createTextNode(gameOverText);					
 	hDisplay.appendChild(h);
 	tDisplay.appendChild(t)
 	
