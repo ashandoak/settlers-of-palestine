@@ -19,6 +19,10 @@
 	
 	<style>
 		
+		body {
+			font-size: 14px;
+		}
+		
 		.jumbotron {
 			max-width: 1920px;
 			border-radius: 0 !important;
@@ -26,35 +30,47 @@
 		}
 				
 		#headerContent {
-			background-color: #0CC5f0;
-			border-radius: 20px;	
+			background-color: #029FBC;
+			border-radius: 10px;	
 			margin-bottom: 1em;
 			//opacity: 0;
 		}
 		
 		#mainContent {
 			background-color: #ffa858;
-			border-radius: 20px;
+			border-radius: 10px;
 			margin-bottom: 1em;	
+			font-style: italic;
 			//opacity: 0;			
 		}
 		
 		#answerContent {
 			background-color: #ffa858;
-			border-radius: 20px;		
+			border-radius: 10px;		
 			margin-bottom: 2em;	
 			//opacity: 0;
+		}
+		
+		/*.answerStyle {
+			background-color: #ffa858;
+			border-radius: 10px;		
+			margin-bottom: 2em;	
+			//opacity: 0;
+		}*/
+		
+		#invisibleContainer {
+			position: absolute;
+			//visibility: hidden;
+			height: auto;
+			width: auto;
+			white-space: nowrap;
+			border: solid black thin;
 		}
 		
 		#chart_container{
 			padding: 0 50px 0 20;
 		}
-		
-		/*#hook-text {
-			font-weight: bold;
-			font-size:
-		}*/
-		
+			
 		.main-group {
 			margin: 0 2% 0 2%;
 		}
@@ -99,7 +115,11 @@
 		}
 		
 		#era-title {
-			font-size: 2em;
+			font-size: 3em;
+		}
+		
+		#hook-text {
+			font-size: 2.5em;
 		}
 			
 		.footer {
@@ -125,11 +145,11 @@
 			</div>
 			
 			<div class="well well-lg main-group" id="mainContent">	
-				<p class="text-justify question-canvas" id="text-canvas"></p>
+				<p class="text-left question-canvas" id="text-canvas"></p>
 			</div>
 		
 			<div class="row">
-				<!--<div class="pull-right well well-sm main-group" id="answerContent">-->
+				<!--<div class="pull-right main-group" id="answerContent">-->
 				<div class="col-xs-5 pull-right well well-sm main-group" id="answerContent">
 					<div class="text-right question-canvas" id="answer-canvas"></div> 
 				</div>
@@ -152,6 +172,7 @@
 
 	</div>
 
+	<div id="invisibleContainer"></div>
 
 	<script src="js/settlers.js"></script>
 	<script src="js/graphing.js"></script>

@@ -15,7 +15,8 @@ var gameOver = false;
 
 //DEBUG
 DEBUG = false;
-MAX_DEBUG_QUESTIONS = 2;
+GAME_OVER_DEBUG = false;
+MAX_DEBUG_QUESTIONS = 1;
 
 $(window).on('resize', function(){
 	graph.configure({
@@ -55,6 +56,10 @@ function startGame() {
 }
 
 function frame() {
+	if (GAME_OVER_DEBUG) {
+		displayGameOver();
+	}
+	
 	if (!displayContentComplete && !gameOver) {
 		resetCanvas();
 
@@ -116,22 +121,31 @@ function generateGameContent(json) {
 
 }
 
+function getStringLength(str, div) {
+	var lengthTestDiv = document.getElementById("invisibleContainer");
+	lengthTestDiv.style.fontSize = window.getComputedStyle(div,null).getPropertyValue('font-size');
+	lengthTestDiv.innerHTML = str;
+	var height = (lengthTestDiv.clientHeight + 1) + "px";
+	var width = (lengthTestDiv.clientWidth + 60) + "px";
+	return {"width":width,"height":height};
+}
+
 function displayContent() {
 	var headerDiv = document.querySelector("#headerContent");
 	var mainDiv = document.querySelector("#mainContent");
 	var answerDiv = document.querySelector("#answerContent");
 	
 	var e, h, t, a;
+	var divSize;
 	
 	var curGameContent = gameObject.gameContent.shift();
 
 	
 	//Hook text			
 	if (curGameContent.type === "newEra") { 
-		if (curGameContent.hook != '"Welcome to Palestine!"') { //temporary hack solution
-			//updateGraph();
-		}
+		//divSize = getStringLength(curGameContent.hook,eDisplay);
 		t = document.createTextNode(curGameContent.hook);
+		//headerDiv.style.width = divSize.width;
 		eDisplay.appendChild(t);
 		headerDiv.classList.add("fadeInAnimation");				
 	} else {
@@ -149,12 +163,12 @@ function displayContent() {
 	}
 	
 	if (curGameContent.answers) {
-		var divLength = 50;
 		
 		for(var i=0; i<curGameContent.answers.length; i++) {
 			
 			(function(i) {
 				var para = createPElement(curGameContent.answers[i].answer, 0, "0.4em");
+
 				para.answerIndex = i;									
 				para.addEventListener("click", function() {
 					var answerChosen;
@@ -167,14 +181,13 @@ function displayContent() {
 					if (curGameContent.type === "setup") {
 						gameObject.gameScore[answerChosen.trig] = answerChosen.answer;							
 					}
-					if (curGameContent.type != "setup" && curGameContent.type != "newEra") { 
+					if (curGameContent.type != "setup" && curGameContent.type != "newEra" && !DEBUG) { 
 						updateGraph(); 
 					}
 					displayReply(curGameContent,answerChosen);
 					resetAnimation(headerDiv,mainDiv,answerDiv);	
 			
 				});
-
 				aDisplay.appendChild(para);	
 			})(i)
 			
@@ -189,7 +202,7 @@ function displayContent() {
 			resolveScore(curGameContent);
 			requestAnimationFrame(frame);
 			displayContentComplete = false;
-			if (curGameContent.type != "setup" && curGameContent.hook != '"Welcome to Palestine!"') {
+			if (curGameContent.type != "setup" && curGameContent.hook != '"Welcome to Palestine!"' && !DEBUG) {
 				updateGraph();
 			}
 			resetAnimation(headerDiv,mainDiv,answerDiv);
@@ -304,7 +317,9 @@ function resolveScore(answerObj) {
 		}
 	}
 	
-	checkScore();
+	if (!DEBUG) {
+		checkScore();
+	}
 }
 
 function checkScore() {
@@ -332,7 +347,8 @@ function displayGameOver(str) {
 	} else if (str === "econ") {
 		gameOverText = "Your kibbutz is bankrupt. The bank liquidates your assets and all your members must leave.";
 	} else {
-		gameOverText = "Your kibbutz has managed to persist through many hardships to contemporary times. Was the 'experiment' a success? Only you can judge...";
+		var variableText = resolveGameOverText();
+		gameOverText = "Your kibbutz persisted through many hardships to contemporary times. You created a " + variableText.popText + ", " + variableText.econText + ", " + variableText.repText + " community of " + variableText.solText + " members.\n\nWas the 'experiment' a success? Only you can judge...";
 	}
 	
 	
@@ -351,6 +367,145 @@ function displayGameOver(str) {
 	aDisplay.appendChild(para);	
 
 	displayContentComplete = true;
+}
+
+function resolveGameOverText() {
+	
+	var popTetxt, econText, repText, solText;
+	
+	var popBounds = [150, 100, 50, 20];
+	var econBounds = [150, 100, 75, 50, 25, 5];
+	var repBounds = [100, 75, 50, 25, 5];
+	var solBounds = [75, 60, 40, 25, 10];
+	
+	var variableIndicies = [{"name":"pop","bounds":popBounds}, {"name":"econ","bounds":econBounds}, {"name":"rep","bounds":repBounds}, {"name":"sol","bounds":solBounds}];
+	
+	for (var i=0; i < variableIndicies.length; i++) {
+		
+		if (variableIndicies[i].bounds[0] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[0]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "enormous";
+					break;
+				case "econ":
+					econText = "extravangantly rich";
+					break;
+				case "rep":
+					repText = "internationally renowned";
+					break;
+				case "sol":
+					solText = "delighted and united";
+					break;
+			}			
+		} else if (variableIndicies[i].bounds[1] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[0] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[1]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "large";
+					break;
+				case "econ":
+					econText = "well-off";
+					break;
+				case "rep":
+					repText = "nationally famous";
+					break;
+				case "sol":
+					solText = "happy and cooperative";
+					break;
+			}				
+		} else if (variableIndicies[i].bounds[2] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[1] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[2]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "medium-sized";
+					break;
+				case "econ":
+					econText = "well-off";
+					break;
+				case "rep":
+					repText = "well-regarded";
+					break;
+				case "sol":
+					solText = "mostly satisfied";
+					break;
+			}				
+		} else if (variableIndicies[i].bounds[3] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[2] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[3]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "small";
+					break;
+				case "econ":
+					econText = "economically stable";
+					break;
+				case "rep":
+					repText = "occasionally talked about";
+					break;
+				case "sol":
+					solText = "occasionally grumpy";
+					break;
+			}				
+		} else if (variableIndicies[i].bounds[4] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[3] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[4]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "";
+					break;
+				case "econ":
+					econText = "financially struggling";
+					break;
+				case "rep":
+					repText = "relatively unknown";
+					break;
+				case "sol":
+					solText = "quarrelsome";
+					break;
+			}				
+		} else if (variableIndicies[i].bounds[5] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[4] && gameObject.gameScore[variableIndicies[i].name] >= variableIndicies[i].bounds[5]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "";
+					break;
+				case "econ":
+					econText = "poor";
+					break;
+				case "rep":
+					repText = "";
+					break;
+				case "sol":
+					solText = "";
+					break;
+			}				
+		} else if (variableIndicies[i].bounds[variableIndicies[i].bounds.length-1] && gameObject.gameScore[variableIndicies[i].name] < variableIndicies[i].bounds[variableIndicies[i].bounds.length-1]) {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "tiny";
+					break;
+				case "econ":
+					econText = "deeply indebted";
+					break;
+				case "rep":
+					repText = "infamous";
+					break;
+				case "sol":
+					solText = "deeply divided and depressed";
+					break;
+			}	
+		} else {
+			switch (variableIndicies[i].name) {
+				case "pop":
+					popText = "";
+					break;
+				case "econ":
+					econText = "";
+					break;
+				case "rep":
+					repText = "";
+					break;
+				case "sol":
+					solText = "";
+					break;
+			}	
+		}		
+	}
+	
+	return {"popText":popText,"econText":econText,"repText":repText,"solText":solText};
 }
 
 
@@ -379,7 +534,7 @@ function createPElement(s, mt, mb) {
 	var a = document.createTextNode(s);
 	
 	para.appendChild(a);
-	para.style.cursor = "default";
+	para.style.cursor = "pointer";
 	//para.style.pointerEvents = "none";
 	
 	if (mt != undefined) { para.style.marginTop = mt; } 
