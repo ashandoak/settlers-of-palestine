@@ -371,7 +371,7 @@ function displayGameOver(str) {
 
 function resolveGameOverText() {
 	
-	var popTetxt, econText, repText, solText;
+	var popText, econText, repText, solText;
 	
 	var popBounds = [150, 100, 50, 20];
 	var econBounds = [150, 100, 75, 50, 25, 5];
