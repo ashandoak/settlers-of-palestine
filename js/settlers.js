@@ -217,7 +217,7 @@ function displayContent() {
 }
 
 function kibbutzVotesAgainst() {
-	if (gameObject.gameScore.sol < 50) {
+	if (gameObject.gameScore.sol < 40) {
 		if (Math.random() < COUNTER_VOTE_CHANCE) {
 			return true;
 		}
@@ -229,7 +229,7 @@ function findNewAnswer(answers, indexChosen) {
 	for (var i = 0; i < answers.length; i++) {
 		if (i != indexChosen && answers[i].answerIdeology === gameObject.gameScore.ideology) {
 			var reply = answers[i].reply;
-			answers[i].reply = "Unfortunately, the kibbutz voted against you. The kibbutz chose:\n\n" + answers[i].answer;
+			answers[i].reply = "Unfortunately, due to weakening solidarity, a majority of kibbutz members voted against you. The kibbutz instead chose:\n\n" + answers[i].answer;
 			return answers[i];
 		}
 	}
@@ -238,7 +238,7 @@ function findNewAnswer(answers, indexChosen) {
 		newIndex = parseInt(Math.random() * answers.length);
 	}
 	var reply = answers[newIndex].reply;
-	answers[newIndex].reply = "Unfortunately, the kibbutz voted against you. The kibbutz chose:\n\n" + answers[newIndex].answer;
+	answers[newIndex].reply = "Unfortunately, due to weakening solidarity, a majority of kibbutz members voted against you. The kibbutz instead chose:\n\n" + answers[newIndex].answer;
 	return answers[newIndex];
 }
 
@@ -348,7 +348,7 @@ function displayGameOver(str) {
 		gameOverText = "Your kibbutz is bankrupt. The bank liquidates your assets and all your members must leave.";
 	} else {
 		var variableText = resolveGameOverText();
-		gameOverText = "Your kibbutz persisted through many hardships to contemporary times. You created a " + variableText.popText + ", " + variableText.econText + ", " + variableText.repText + " community of " + variableText.solText + " members.\n\nWas the 'experiment' a success? Only you can judge...";
+		gameOverText = "Your kibbutz persisted across the decades and through many hardships to contemporary times. Together you created a " + variableText.popText + ", " + variableText.econText + ", " + variableText.repText + " community of " + variableText.solText + " members.\n\nWas the 'experiment' a success? Only you can judge...";
 	}
 	
 	
@@ -388,7 +388,7 @@ function resolveGameOverText() {
 					popText = "enormous";
 					break;
 				case "econ":
-					econText = "extravangantly rich";
+					econText = "extravagantly rich";
 					break;
 				case "rep":
 					repText = "internationally renowned";
@@ -484,7 +484,7 @@ function resolveGameOverText() {
 					repText = "infamous";
 					break;
 				case "sol":
-					solText = "deeply divided and depressed";
+					solText = "socially divided and depressed";
 					break;
 			}	
 		} else {
